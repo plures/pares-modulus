@@ -1,0 +1,13 @@
+{
+  "id": "vault",
+  "name": "Vault",
+  "version": "0.0.1",
+  "description": "Secret management, encryption, and key rotation",
+  "author": "plures",
+  "license": "MIT",
+  "icon": "🔐",
+  "keywords": ["secrets", "encryption", "security"],
+  "radix": ">=0.1.0",
+  "dependencies": [],
+  "entry": "src/index.ts"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "agent-console",
+  "name": "Agent Console",
+  "version": "0.0.1",
+  "description": "Agent orchestration, channel management, and audit trail",
+  "author": "plures",
+  "license": "MIT",
+  "icon": "🤖",
+  "keywords": ["agents", "orchestration", "channels"],
+  "radix": ">=0.1.0",
+  "dependencies": [],
+  "entry": "src/index.ts"
+}

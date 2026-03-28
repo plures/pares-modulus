@@ -1,0 +1,22 @@
+{
+  "id": "financial-advisor",
+  "name": "Financial Advisor",
+  "version": "0.1.0",
+  "description": "AI-powered personal finance management with praxis inference — transaction categorization, budgets, goals, and contextual advice",
+  "author": "plures",
+  "license": "MIT",
+  "icon": "💰",
+  "keywords": ["finance", "budgets", "transactions", "categorization", "inference"],
+  "homepage": "https://github.com/plures/pares-modulus/tree/main/plugins/financial-advisor",
+  "repository": "https://github.com/plures/pares-modulus",
+  "radix": ">=0.1.0",
+  "dependencies": [],
+  "peerDependencies": {
+    "@plures/design-dojo": ">=0.1.0"
+  },
+  "entry": "src/index.ts",
+  "size": {
+    "source": "24KB",
+    "estimated_bundle": "40KB"
+  }
+}

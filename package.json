@@ -1,15 +1,20 @@
 {
   "name": "@plures/pares-modulus",
   "version": "0.1.0",
-  "description": "Plugin collection for pares-radix — financial advisor, vault, sprint-log, netops, and more",
+  "description": "Plugin registry for pares-radix — curated, gated collection of plugins",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "lint": "eslint plugins/",
+    "build": "tsc --noEmit",
+    "lint": "eslint plugins/ gates/ scripts/",
     "check": "tsc --noEmit",
-    "test": "echo \"No tests yet\" && exit 0"
+    "test": "echo \"No tests yet\" && exit 0",
+    "registry:build": "tsx scripts/build-registry.ts",
+    "gate:manifest": "tsx gates/validate-manifest.ts",
+    "gate:security": "tsx gates/security-scan.ts",
+    "gate:size": "tsx gates/size-audit.ts",
+    "gate:all": "npm run gate:manifest -- plugins/$PLUGIN && npm run gate:security -- plugins/$PLUGIN && npm run gate:size -- plugins/$PLUGIN"
   },
-  "keywords": ["praxis", "plugins", "financial", "vault"],
+  "keywords": ["praxis", "plugins", "registry"],
   "author": "Plures",
   "license": "MIT",
   "repository": {
@@ -18,6 +23,7 @@
   },
   "devDependencies": {
     "typescript": "^5.7.0",
+    "tsx": "^4.0.0",
     "eslint": "^9.0.0",
     "@eslint/js": "^9.0.0",
     "typescript-eslint": "^8.0.0"

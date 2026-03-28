@@ -1,80 +1,155 @@
 # pares-modulus
 
-Plugin collection for [pares-radix](https://github.com/plures/pares-radix) — domain-specific extensions that add specialized capabilities to the Praxis base application.
+The plugin registry for [pares-radix](https://github.com/plures/pares-radix) — a curated, gated collection of plugins that radix discovers, browses, and installs from directly.
 
-**Modulus** (Latin: *measure, standard*) — each plugin is a self-contained module that adds a distinct capability while conforming to the radix plugin contract.
+**Modulus** works like [nixpkgs](https://github.com/NixOS/nixpkgs): a single repo containing plugin definitions, metadata, and source. Anyone can submit a plugin via PR. Submissions go through automated gates (CI, type-check, security scan, size audit) and maintainer review before merging.
 
-## Plugins
+## How It Works
 
-| Plugin | Description | Status | Source Repo |
-|---|---|---|---|
-| `financial-advisor` | AI-powered personal finance — transaction categorization, budgets, goals, reports | 🚧 Planned | [FinancialAdvisor](https://github.com/plures/FinancialAdvisor) |
-| `vault` | Secret management, encryption, key rotation | 🚧 Planned | [plures-vault](https://github.com/plures/plures-vault) |
-| `sprint-log` | Sprint tracking, velocity charts, retrospectives | 🚧 Planned | [sprint-log](https://github.com/plures/sprint-log) |
-| `netops-toolkit` | Network diagnostics, topology visualization, monitoring | 🚧 Planned | [netops-toolkit-app](https://github.com/plures/netops-toolkit-app) |
-| `agent-console` | Agent orchestration, channel management, audit trail | 🚧 Planned | [pares-agens](https://github.com/plures/pares-agens) |
+```
+pares-radix (app)
+    │
+    ├── radix plugin browse     →  fetches registry/index.json from modulus
+    ├── radix plugin install X  →  pulls plugin source from modulus/plugins/X/
+    └── radix plugin update     →  checks for newer versions in registry
+```
 
-## Architecture
+### For Users (in radix)
 
-Each plugin implements the `RadixPlugin` interface from `@plures/pares-radix`:
+```bash
+# Browse available plugins
+radix plugin browse
+
+# Install a plugin
+radix plugin install financial-advisor
+
+# Update all plugins
+radix plugin update
+```
+
+### For Plugin Authors (submitting to modulus)
+
+```bash
+# 1. Fork pares-modulus
+# 2. Add your plugin
+mkdir plugins/my-plugin
+# 3. Create the required files (see structure below)
+# 4. Open a PR — automated gates run
+```
+
+## Repository Structure
 
 ```
 pares-modulus/
+├── registry/
+│   ├── index.json              # Machine-readable plugin catalog
+│   └── schema.json             # Plugin manifest validation schema
 ├── plugins/
 │   ├── financial-advisor/
-│   │   ├── index.ts          # RadixPlugin manifest
-│   │   ├── pages/            # Svelte route components
-│   │   ├── rules/            # Praxis inference rules
-│   │   ├── expectations/     # Business + UX expectations
-│   │   └── stores/           # Domain-specific state
+│   │   ├── manifest.json       # Plugin metadata (name, version, deps, etc.)
+│   │   ├── src/                # Plugin source code
+│   │   │   ├── index.ts        # RadixPlugin export
+│   │   │   ├── pages/          # Svelte components
+│   │   │   ├── rules/          # Praxis inference rules
+│   │   │   └── stores/         # Domain state
+│   │   ├── tests/              # Plugin tests
+│   │   └── README.md           # Plugin documentation
 │   ├── vault/
 │   ├── sprint-log/
 │   ├── netops-toolkit/
 │   └── agent-console/
-└── shared/                   # Cross-plugin utilities (if any)
+├── gates/                      # Submission gate scripts
+│   ├── validate-manifest.ts    # Schema validation
+│   ├── security-scan.ts        # Dependency audit + no secrets
+│   ├── size-audit.ts           # Bundle size limits
+│   └── type-check.ts           # TypeScript strict compliance
+├── scripts/
+│   ├── build-registry.ts       # Rebuilds registry/index.json from plugins/
+│   └── validate-all.ts         # Runs all gates on all plugins
+└── .github/
+    └── workflows/
+        ├── plugin-gate.yml     # PR gate: runs all checks on changed plugins
+        ├── build-registry.yml  # Post-merge: rebuilds index.json
+        └── ...                 # Standard plures automation
 ```
 
-Plugins contain **only domain logic** — no layout, navigation, settings UI, help pages, import/export, or LLM configuration. That's all handled by radix.
+## Plugin Manifest (`manifest.json`)
 
-## Migration Plan
+Every plugin must include a `manifest.json`:
 
-Current standalone apps continue development normally. Once pares-radix is feature-complete:
-
-1. Extract domain logic from each app into a modulus plugin
-2. Wire up the `RadixPlugin` interface (routes, nav, settings, rules, expectations)
-3. Test the plugin running inside radix
-4. Archive the standalone repo (or keep it as a standalone Tauri build option)
-
-## Creating a Plugin
-
-```typescript
-import type { RadixPlugin } from '@plures/pares-radix';
-
-export default {
-  id: 'my-plugin',
-  name: 'My Plugin',
-  version: '0.1.0',
-  icon: '🔧',
-  description: 'Does something useful',
-
-  routes: [
-    { path: '/', component: () => import('./pages/Home.svelte'), title: 'My Plugin' },
-  ],
-
-  navItems: [
-    { href: '/my-plugin', label: 'My Plugin', icon: '🔧' },
-  ],
-
-  settings: [],
-  expectations: [],
-  rules: [],
-
-  async onActivate(ctx) {
-    // Initialize with platform context (settings, data, llm, inference)
+```json
+{
+  "id": "financial-advisor",
+  "name": "Financial Advisor",
+  "version": "0.1.0",
+  "description": "AI-powered personal finance management with praxis inference",
+  "author": "plures",
+  "license": "MIT",
+  "icon": "💰",
+  "keywords": ["finance", "budgets", "transactions", "categorization"],
+  "homepage": "https://github.com/plures/pares-modulus/tree/main/plugins/financial-advisor",
+  "repository": "https://github.com/plures/pares-modulus",
+  "radix": ">=0.1.0",
+  "dependencies": [],
+  "peerDependencies": {
+    "@plures/design-dojo": ">=0.1.0"
   },
-} satisfies RadixPlugin;
+  "entry": "src/index.ts",
+  "size": {
+    "source": "25KB",
+    "estimated_bundle": "40KB"
+  }
+}
 ```
+
+## Submission Gates
+
+All PRs that touch `plugins/` must pass:
+
+| Gate | Description | Failure = |
+|---|---|---|
+| **Manifest Validation** | `manifest.json` matches schema, all required fields present | Block |
+| **Type Check** | `tsc --noEmit --strict` on plugin source | Block |
+| **Security Scan** | No hardcoded secrets, dependency audit clean | Block |
+| **Size Audit** | Source under 500KB, no binary blobs | Block |
+| **Tests** | Plugin tests pass (if `tests/` exists) | Warn |
+| **Radix Compatibility** | Plugin exports valid `RadixPlugin` interface | Block |
+| **Maintainer Review** | Human approval required | Block |
+
+## Registry Index
+
+`registry/index.json` is auto-generated on merge and serves as the catalog radix queries:
+
+```json
+{
+  "version": 1,
+  "generated": "2026-03-27T18:00:00Z",
+  "plugins": [
+    {
+      "id": "financial-advisor",
+      "name": "Financial Advisor",
+      "version": "0.1.0",
+      "description": "AI-powered personal finance management with praxis inference",
+      "author": "plures",
+      "icon": "💰",
+      "keywords": ["finance", "budgets"],
+      "radix": ">=0.1.0",
+      "size": "25KB",
+      "path": "plugins/financial-advisor"
+    }
+  ]
+}
+```
+
+## Community Guidelines
+
+- **One plugin per directory** in `plugins/`
+- **Plugin IDs are unique** and kebab-case
+- **Breaking changes** require a version bump in `manifest.json`
+- **Plugins must be self-contained** — no imports between plugins
+- **Tests are encouraged** — plugins with tests get a "tested" badge in the registry
+- **Inactive plugins** (no updates for 12 months) get a deprecation warning
 
 ## License
 
-MIT
+MIT — individual plugins may have their own licenses specified in their `manifest.json`.

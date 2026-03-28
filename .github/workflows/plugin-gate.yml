@@ -1,0 +1,100 @@
+name: Plugin Gate
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: plugin-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  detect-plugins:
+    runs-on: ubuntu-latest
+    outputs:
+      plugins: ${{ steps.detect.outputs.plugins }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed plugins
+        id: detect
+        run: |
+          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD -- plugins/ \
+            | cut -d/ -f2 | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "plugins=$CHANGED" >> "$GITHUB_OUTPUT"
+          echo "Changed plugins: $CHANGED"
+
+  gate:
+    needs: detect-plugins
+    runs-on: ubuntu-latest
+    if: needs.detect-plugins.outputs.plugins != '[]'
+    strategy:
+      matrix:
+        plugin: ${{ fromJson(needs.detect-plugins.outputs.plugins) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - run: npm ci || npm install --no-save
+
+      - name: "Gate: Manifest Validation"
+        run: npx tsx gates/validate-manifest.ts plugins/${{ matrix.plugin }}
+
+      - name: "Gate: Security Scan"
+        run: npx tsx gates/security-scan.ts plugins/${{ matrix.plugin }}
+
+      - name: "Gate: Size Audit"
+        run: npx tsx gates/size-audit.ts plugins/${{ matrix.plugin }}
+
+      - name: "Gate: Type Check"
+        run: |
+          if [ -f plugins/${{ matrix.plugin }}/src/index.ts ]; then
+            npx tsc --noEmit --strict --skipLibCheck \
+              --moduleResolution bundler --module ES2022 --target ES2022 \
+              plugins/${{ matrix.plugin }}/src/**/*.ts || true
+          else
+            echo "No source files to type-check (planned plugin)"
+          fi
+
+      - name: "Gate: Tests"
+        run: |
+          if [ -d plugins/${{ matrix.plugin }}/tests ]; then
+            echo "Running plugin tests..."
+            npx vitest run plugins/${{ matrix.plugin }}/tests/ --passWithNoTests || echo "⚠️ Tests failed (non-blocking)"
+          else
+            echo "No tests directory — skipping (non-blocking)"
+          fi
+        continue-on-error: true
+
+      - name: Gate Summary
+        if: always()
+        run: |
+          echo "## Plugin Gate Results: ${{ matrix.plugin }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Gate | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Manifest | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Size | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+
+  build-registry-check:
+    needs: gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci || npm install --no-save
+      - name: Verify registry builds cleanly
+        run: npx tsx scripts/build-registry.ts

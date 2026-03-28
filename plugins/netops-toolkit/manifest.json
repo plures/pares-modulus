@@ -1,0 +1,13 @@
+{
+  "id": "netops-toolkit",
+  "name": "Netops Toolkit",
+  "version": "0.0.1",
+  "description": "Network diagnostics, topology visualization, and monitoring",
+  "author": "plures",
+  "license": "MIT",
+  "icon": "🌐",
+  "keywords": ["network", "diagnostics", "monitoring"],
+  "radix": ">=0.1.0",
+  "dependencies": [],
+  "entry": "src/index.ts"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "sprint-log",
+  "name": "Sprint Log",
+  "version": "0.0.1",
+  "description": "Sprint tracking, velocity charts, and retrospectives",
+  "author": "plures",
+  "license": "MIT",
+  "icon": "🏃",
+  "keywords": ["sprint", "agile", "velocity"],
+  "radix": ">=0.1.0",
+  "dependencies": [],
+  "entry": "src/index.ts"
+}
