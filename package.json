@@ -1,7 +1,7 @@
 {
   "name": "@plures/pares-modulus",
   "version": "0.1.0",
-  "description": "Plugin registry for pares-radix — curated, gated collection of plugins",
+  "description": "Plugin registry for pares-radix \u2014 curated, gated collection of plugins",
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit",
@@ -14,7 +14,11 @@
     "gate:size": "tsx gates/size-audit.ts",
     "gate:all": "npm run gate:manifest -- plugins/$PLUGIN && npm run gate:security -- plugins/$PLUGIN && npm run gate:size -- plugins/$PLUGIN"
   },
-  "keywords": ["praxis", "plugins", "registry"],
+  "keywords": [
+    "praxis",
+    "plugins",
+    "registry"
+  ],
   "author": "Plures",
   "license": "MIT",
   "repository": {
