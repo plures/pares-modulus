@@ -14,9 +14,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "paths": {
-      "@plures/pares-radix": ["../pares-radix/src/lib/index.ts"]
+      "@plures/pares-radix": ["./types/pares-radix.d.ts"]
     }
   },
-  "include": ["plugins/**/*.ts"],
+  "include": ["plugins/**/*.ts", "types/**/*.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

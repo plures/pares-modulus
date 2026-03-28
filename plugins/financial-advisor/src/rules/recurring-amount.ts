@@ -19,7 +19,6 @@ export const recurringAmountPattern: InferenceRule = {
     const { record, confirmedInferences } = input;
     const vendor = normalizeVendor(record.description as string);
     const amount = Math.abs(record.amount as number);
-    const date = new Date(record.date as string);
 
     // Find confirmed transactions with similar vendor
     const matches = confirmedInferences.filter(inf => {

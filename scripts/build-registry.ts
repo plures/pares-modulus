@@ -1,5 +1,5 @@
 /**
- * Build registry/index.json from all plugins/*/manifest.json files.
+ * Build registry/index.json from all plugin manifest.json files.
  * Run after merging new plugins or updating existing ones.
  *
  * Usage: npx tsx scripts/build-registry.ts
