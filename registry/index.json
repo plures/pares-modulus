@@ -1,7 +1,25 @@
 {
   "version": 1,
-  "generated": "2026-03-27T18:18:00Z",
+  "generated": "2026-03-28T06:28:33.386Z",
   "plugins": [
+    {
+      "id": "agent-console",
+      "name": "Agent Console",
+      "version": "0.0.1",
+      "description": "Agent orchestration, channel management, and audit trail",
+      "author": "plures",
+      "icon": "🤖",
+      "keywords": [
+        "agents",
+        "orchestration",
+        "channels"
+      ],
+      "radix": ">=0.1.0",
+      "size": "0KB",
+      "path": "plugins/agent-console",
+      "tested": false,
+      "status": "planned"
+    },
     {
       "id": "financial-advisor",
       "name": "Financial Advisor",
@@ -9,7 +27,13 @@
       "description": "AI-powered personal finance management with praxis inference — transaction categorization, budgets, goals, and contextual advice",
       "author": "plures",
       "icon": "💰",
-      "keywords": ["finance", "budgets", "transactions", "categorization", "inference"],
+      "keywords": [
+        "finance",
+        "budgets",
+        "transactions",
+        "categorization",
+        "inference"
+      ],
       "radix": ">=0.1.0",
       "size": "24KB",
       "path": "plugins/financial-advisor",
@@ -17,16 +41,20 @@
       "status": "development"
     },
     {
-      "id": "vault",
-      "name": "Vault",
+      "id": "netops-toolkit",
+      "name": "Netops Toolkit",
       "version": "0.0.1",
-      "description": "Secret management, encryption, and key rotation",
+      "description": "Network diagnostics, topology visualization, and monitoring",
       "author": "plures",
-      "icon": "🔐",
-      "keywords": ["secrets", "encryption", "security"],
+      "icon": "🌐",
+      "keywords": [
+        "network",
+        "diagnostics",
+        "monitoring"
+      ],
       "radix": ">=0.1.0",
       "size": "0KB",
-      "path": "plugins/vault",
+      "path": "plugins/netops-toolkit",
       "tested": false,
       "status": "planned"
     },
@@ -37,7 +65,11 @@
       "description": "Sprint tracking, velocity charts, and retrospectives",
       "author": "plures",
       "icon": "🏃",
-      "keywords": ["sprint", "agile", "velocity", "retro"],
+      "keywords": [
+        "sprint",
+        "agile",
+        "velocity"
+      ],
       "radix": ">=0.1.0",
       "size": "0KB",
       "path": "plugins/sprint-log",
@@ -45,30 +77,20 @@
       "status": "planned"
     },
     {
-      "id": "netops-toolkit",
-      "name": "NetOps Toolkit",
+      "id": "vault",
+      "name": "Vault",
       "version": "0.0.1",
-      "description": "Network diagnostics, topology visualization, and monitoring",
+      "description": "Secret management, encryption, and key rotation",
       "author": "plures",
-      "icon": "🌐",
-      "keywords": ["network", "diagnostics", "monitoring", "topology"],
+      "icon": "🔐",
+      "keywords": [
+        "secrets",
+        "encryption",
+        "security"
+      ],
       "radix": ">=0.1.0",
       "size": "0KB",
-      "path": "plugins/netops-toolkit",
-      "tested": false,
-      "status": "planned"
-    },
-    {
-      "id": "agent-console",
-      "name": "Agent Console",
-      "version": "0.0.1",
-      "description": "Agent orchestration, channel management, and audit trail",
-      "author": "plures",
-      "icon": "🤖",
-      "keywords": ["agents", "orchestration", "channels"],
-      "radix": ">=0.1.0",
-      "size": "0KB",
-      "path": "plugins/agent-console",
+      "path": "plugins/vault",
       "tested": false,
       "status": "planned"
     }
