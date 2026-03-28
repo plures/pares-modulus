@@ -1,0 +1,31 @@
+{
+  "name": "@plures/pares-modulus",
+  "version": "0.1.0",
+  "description": "Plugin collection for pares-radix — financial advisor, vault, sprint-log, netops, and more",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint plugins/",
+    "check": "tsc --noEmit",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": ["praxis", "plugins", "financial", "vault"],
+  "author": "Plures",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plures/pares-modulus.git"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "eslint": "^9.0.0",
+    "@eslint/js": "^9.0.0",
+    "typescript-eslint": "^8.0.0"
+  },
+  "dependencies": {
+    "@plures/pares-radix": "^0.1.0"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  }
+}
