@@ -1,3 +1,8 @@
+## [0.1.1] — 2026-03-28
+
+- chore: add CI, Copilot automation, build tooling (88a0202)
+- feat: initial pares-modulus with financial-advisor plugin and inference rules (226ece7)
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

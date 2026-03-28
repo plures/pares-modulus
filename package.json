@@ -1,6 +1,6 @@
 {
   "name": "@plures/pares-modulus",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Plugin collection for pares-radix — financial advisor, vault, sprint-log, netops, and more",
   "type": "module",
   "scripts": {
@@ -9,7 +9,12 @@
     "check": "tsc --noEmit",
     "test": "echo \"No tests yet\" && exit 0"
   },
-  "keywords": ["praxis", "plugins", "financial", "vault"],
+  "keywords": [
+    "praxis",
+    "plugins",
+    "financial",
+    "vault"
+  ],
   "author": "Plures",
   "license": "MIT",
   "repository": {
