@@ -28,9 +28,7 @@
     "@eslint/js": "^9.0.0",
     "typescript-eslint": "^8.0.0"
   },
-  "dependencies": {
-    "@plures/pares-radix": "^0.1.0"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "svelte": "^5.0.0"
   }

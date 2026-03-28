@@ -219,7 +219,7 @@ const financialAdvisor: RadixPlugin = {
 
   constraints: [],
 
-  async onActivate(ctx) {
+  async onActivate() {
     console.log('[financial-advisor] Plugin activated');
     // TODO: Initialize PluresDB collections, load inference rules
   },
@@ -233,7 +233,7 @@ const financialAdvisor: RadixPlugin = {
     return {};
   },
 
-  async onDataImport(data) {
+  async onDataImport() {
     // TODO: Import from export format
   },
 };
