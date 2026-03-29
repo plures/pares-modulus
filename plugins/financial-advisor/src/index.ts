@@ -5,11 +5,12 @@
  * inference rules, budgets, goals, reports, and contextual advice.
  */
 
-import type { RadixPlugin } from '@plures/pares-radix';
+import type { RadixPlugin, PluginContext } from '@plures/pares-radix';
 import { recurringAmountPattern } from './rules/recurring-amount.js';
 import { vendorClustering } from './rules/vendor-clustering.js';
 import { refundDetection } from './rules/refund-detection.js';
 import { taxVarianceDetection } from './rules/tax-variance.js';
+import { setPluginContext } from './lib/context.js';
 
 const financialAdvisor: RadixPlugin = {
   id: 'financial-advisor',
@@ -219,9 +220,10 @@ const financialAdvisor: RadixPlugin = {
 
   constraints: [],
 
-  async onActivate() {
+  async onActivate(ctx: PluginContext) {
     console.log('[financial-advisor] Plugin activated');
-    // TODO: Initialize PluresDB collections, load inference rules
+    setPluginContext(ctx);
+    // TODO: load inference rules into inference engine
   },
 
   async onDeactivate() {
