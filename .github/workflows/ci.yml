@@ -36,7 +36,7 @@ jobs:
         run: npm run lint --if-present
 
       - name: Type check
-        run: npx tsc --noEmit --skipLibCheck || echo "No tsconfig found, skipping"
+        run: npm run check --if-present
 
       - name: Test
         run: npm test --if-present
