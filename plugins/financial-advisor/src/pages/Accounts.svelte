@@ -13,10 +13,6 @@
   let ctx: any;
   let collection: any;
 
-  onMount(() => {
-    ctx = getPluginContext();
-    collection = ctx?.data.collection<Account>(FA_ACCOUNTS_COLLECTION);
-  });
   // ── Page state ────────────────────────────────────────────────────────────
   let accounts = $state<Account[]>([]);
   let loading = $state(true);
@@ -47,6 +43,8 @@
 
   // ── Load accounts on mount ────────────────────────────────────────────────
   onMount(() => {
+    ctx = getPluginContext();
+    collection = ctx?.data.collection<Account>(FA_ACCOUNTS_COLLECTION);
     loadAccounts().catch(() => {
       ctx?.notify.error('Failed to load accounts.');
       loading = false;
@@ -63,6 +61,32 @@
     } finally {
       loading = false;
     }
+  }
+
+  // ── Modal action — wires <dialog> to showModal() for native focus trapping,
+  //    backdrop, and Escape handling. Click on ::backdrop closes the dialog.
+  function useModal(node: HTMLDialogElement, params: { onClose: () => void }) {
+    function handleCancel(e: Event) {
+      // Prevent the browser from closing the dialog on its own so that Svelte
+      // state (the {#if} block) remains the single source of truth for visibility.
+      e.preventDefault();
+      params.onClose();
+    }
+    function handleBackdropClick(e: MouseEvent) {
+      // A click whose direct target is the <dialog> element itself means the
+      // user clicked on the ::backdrop (outside the dialog box).
+      if (e.target === node) params.onClose();
+    }
+    node.showModal();
+    node.addEventListener('cancel', handleCancel);
+    node.addEventListener('click', handleBackdropClick);
+    return {
+      destroy() {
+        node.removeEventListener('cancel', handleCancel);
+        node.removeEventListener('click', handleBackdropClick);
+        if (node.open) node.close();
+      },
+    };
   }
 
   // ── Form helpers ──────────────────────────────────────────────────────────
@@ -167,14 +191,6 @@
       currency: 'USD',
     }).format(amount);
   }
-
-  function handleFormKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') closeForm();
-  }
-
-  function handleDeleteKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') confirmDeleteId = null;
-  }
 </script>
 
 <!-- ── Page ──────────────────────────────────────────────────────────────── -->
@@ -264,19 +280,11 @@
 
 <!-- ── Account form dialog ────────────────────────────────────────────────── -->
 {#if showForm}
-  <button
-    type="button"
-    class="overlay"
-    aria-label="Close dialog"
-    onclick={closeForm}
-    onkeydown={handleFormKeydown}
-  ></button>
   <dialog
+    use:useModal={{ onClose: closeForm }}
     class="dialog"
-    open
     aria-modal="true"
     aria-labelledby="dialog-title"
-    onkeydown={handleFormKeydown}
   >
     <header class="dialog__header">
       <h2 class="dialog__title" id="dialog-title">
@@ -384,19 +392,11 @@
 
 <!-- ── Delete confirmation dialog ────────────────────────────────────────── -->
 {#if confirmDeleteId !== null}
-  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <div
-    class="overlay"
-    role="presentation"
-    onclick={() => (confirmDeleteId = null)}
-    onkeydown={handleDeleteKeydown}
-  ></div>
   <dialog
+    use:useModal={{ onClose: () => (confirmDeleteId = null) }}
     class="dialog dialog--sm"
-    open
     aria-modal="true"
     aria-labelledby="confirm-title"
-    onkeydown={handleDeleteKeydown}
   >
     <header class="dialog__header">
       <h2 class="dialog__title" id="confirm-title">Delete Account?</h2>
@@ -587,12 +587,9 @@
     flex-shrink: 0;
   }
 
-  /* ── Overlay ─────────────────────────────────────────────────────────────── */
-  .overlay {
-    position: fixed;
-    inset: 0;
+  /* ── Dialog backdrop (native modal via showModal()) ─────────────────────── */
+  .dialog::backdrop {
     background: rgba(0, 0, 0, 0.4);
-    z-index: 40;
   }
 
   /* ── Dialog ──────────────────────────────────────────────────────────────── */
@@ -606,7 +603,6 @@
     border: 1px solid var(--color-border, #e5e7eb);
     border-radius: var(--radius-xl, 1rem);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    z-index: 50;
     padding: 0;
   }
 

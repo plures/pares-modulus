@@ -10,7 +10,7 @@ import { recurringAmountPattern } from './rules/recurring-amount.js';
 import { vendorClustering } from './rules/vendor-clustering.js';
 import { refundDetection } from './rules/refund-detection.js';
 import { taxVarianceDetection } from './rules/tax-variance.js';
-import { setPluginContext } from './lib/context.js';
+import { setPluginContext, clearPluginContext } from './lib/context.js';
 
 const financialAdvisor: RadixPlugin = {
   id: 'financial-advisor',
@@ -228,6 +228,7 @@ const financialAdvisor: RadixPlugin = {
 
   async onDeactivate() {
     console.log('[financial-advisor] Plugin deactivated');
+    clearPluginContext();
   },
 
   async onDataExport() {

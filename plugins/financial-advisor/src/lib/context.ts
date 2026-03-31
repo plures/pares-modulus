@@ -18,6 +18,7 @@ export function setPluginContext(ctx: PluginContext): void {
 export function clearPluginContext(): void {
   _context = null;
 }
+
 export function getPluginContext(): PluginContext | null {
   return _context;
 }
