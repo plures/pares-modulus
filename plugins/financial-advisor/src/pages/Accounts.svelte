@@ -264,13 +264,13 @@
 
 <!-- ── Account form dialog ────────────────────────────────────────────────── -->
 {#if showForm}
-  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <div
+  <button
+    type="button"
     class="overlay"
-    role="presentation"
+    aria-label="Close dialog"
     onclick={closeForm}
     onkeydown={handleFormKeydown}
-  ></div>
+  ></button>
   <dialog
     class="dialog"
     open
