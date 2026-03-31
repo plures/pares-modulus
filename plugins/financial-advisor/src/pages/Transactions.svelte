@@ -192,17 +192,25 @@
     }
     expandedId = id;
     decisionChain = [];
+    const requestedId = id;
 
     const inf = inferenceMap.get(id);
     if (!inf || !ctx) return;
 
     loadingChain = true;
     try {
-      decisionChain = (await ctx.inference.getDecisionChain(inf.id)) ?? [];
+      const chain = (await ctx.inference.getDecisionChain(inf.id)) ?? [];
+      if (expandedId === requestedId) {
+        decisionChain = chain;
+      }
     } catch {
-      decisionChain = [{ note: 'Decision chain unavailable.' }];
+      if (expandedId === requestedId) {
+        decisionChain = [{ note: 'Decision chain unavailable.' }];
+      }
     } finally {
-      loadingChain = false;
+      if (expandedId === requestedId) {
+        loadingChain = false;
+      }
     }
   }
 
@@ -300,6 +308,7 @@
       year: 'numeric',
       month: 'short',
       day: 'numeric',
+      timeZone: 'UTC',
     }).format(new Date(iso + 'T00:00:00Z'));
   }
 
@@ -837,11 +846,11 @@
     text-overflow: ellipsis;
   }
 
-  .tx-table__th[onclick] {
+  button.tx-table__th {
     cursor: pointer;
   }
 
-  .tx-table__th[onclick]:hover {
+  button.tx-table__th:hover {
     color: var(--color-text, #111827);
   }
 
