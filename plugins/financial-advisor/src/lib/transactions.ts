@@ -38,6 +38,46 @@ export interface Transaction {
 
 export const FA_TRANSACTIONS_COLLECTION = 'fa-transactions';
 
+/** Collection that stores inference results and user overrides for transactions. */
+export const FA_INFERENCES_COLLECTION = 'fa-transaction-inferences';
+
+export type ConfidenceLevel = 'high' | 'medium' | 'low';
+
+/** Returns the confidence tier for a numeric confidence score (0–1). */
+export function confidenceLevel(score: number): ConfidenceLevel {
+  if (score >= 0.9) return 'high';
+  if (score >= 0.7) return 'medium';
+  return 'low';
+}
+
+/**
+ * A single inference/categorization record stored in fa-transaction-inferences.
+ * One document per (transactionId, field) pair.  When the user manually
+ * overrides a category the same document is upserted with userConfirmed = true.
+ */
+export interface TransactionInference {
+  /** `inf-<transactionId>-<field>` — deterministic so that upserts are safe. */
+  id: string;
+  transactionId: string;
+  /** Typically "category". */
+  field: string;
+  value: string;
+  /** 0.0 – 1.0. User-confirmed overrides are stored with confidence = 1.0. */
+  confidence: number;
+  /** Prose explanation produced by the inference rule. */
+  reasoning: string;
+  /** Which inference rule (or "user") produced this result. */
+  sourceId: string;
+  /** True when the user explicitly confirmed or overrode this inference. */
+  userConfirmed: boolean;
+  /** ISO 8601 timestamp of last write. */
+  updatedAt: string;
+}
+
+export function generateInferenceId(transactionId: string, field: string): string {
+  return `inf-${transactionId}-${field}`;
+}
+
 export function generateTransactionId(): string {
   return `txn-${crypto.randomUUID()}`;
 }
