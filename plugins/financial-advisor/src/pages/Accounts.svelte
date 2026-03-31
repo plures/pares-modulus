@@ -10,9 +10,13 @@
     type AccountType,
   } from '../lib/accounts.js';
 
-  const ctx = getPluginContext();
-  const collection = ctx?.data.collection<Account>(FA_ACCOUNTS_COLLECTION);
+  let ctx: any;
+  let collection: any;
 
+  onMount(() => {
+    ctx = getPluginContext();
+    collection = ctx?.data.collection<Account>(FA_ACCOUNTS_COLLECTION);
+  });
   // ── Page state ────────────────────────────────────────────────────────────
   let accounts = $state<Account[]>([]);
   let loading = $state(true);
