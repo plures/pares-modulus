@@ -157,8 +157,30 @@ function findColumnIndices(
   const descIdx = norm.findIndex(
     h => h.includes('description') || h.includes('memo') || h.includes('name'),
   );
-  const amtIdx = norm.findIndex(h => h === 'amount' || h === 'debit' || h === 'credit');
+  // Prefer a true "amount" column when present. Only fall back to a single
+  // "debit" or "credit" column. If both debit and credit columns exist, we
+  // cannot safely infer a single amount column, so we decline generic parsing.
+  const amountIdx = norm.findIndex(h => h === 'amount');
+  const debitIdx = norm.findIndex(h => h === 'debit');
+  const creditIdx = norm.findIndex(h => h === 'credit');
 
+  let amtIdx = -1;
+  if (amountIdx !== -1) {
+    amtIdx = amountIdx;
+  } else {
+    const hasDebit = debitIdx !== -1;
+    const hasCredit = creditIdx !== -1;
+
+    if (hasDebit && !hasCredit) {
+      amtIdx = debitIdx;
+    } else if (!hasDebit && hasCredit) {
+      amtIdx = creditIdx;
+    } else {
+      // Either both debit and credit exist, or neither does – in both cases
+      // we cannot identify a single reliable amount column.
+      amtIdx = -1;
+    }
+  }
   if (dateIdx === -1 || descIdx === -1 || amtIdx === -1) return null;
   return { dateIdx, descIdx, amtIdx };
 }
