@@ -228,7 +228,7 @@
         id="target-account"
         class="field__select"
         bind:value={selectedAccountId}
-        disabled={stage === 'committing'}
+        disabled={stage === 'preview' || stage === 'committing'}
       >
         {#each accounts as account (account.id)}
           <option value={account.id}>{account.name}{account.institution ? ` — ${account.institution}` : ''}</option>
