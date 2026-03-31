@@ -11,7 +11,7 @@
  *   TRNTYPE, DTPOSTED, TRNAMT, FITID, NAME, MEMO
  */
 
-import { generateTransactionId, type Transaction } from '../transactions.js';
+import { type Transaction } from '../transactions.js';
 
 // ── Public types ─────────────────────────────────────────────────────────────
 
@@ -155,11 +155,30 @@ export function parseOfx(raw: string): OfxParseResult {
   const isXml = /^\s*<\?(?:xml|OFX)/i.test(text);
 
   if (isXml) {
-    // Use browser DOMParser (available in all modern browsers and jsdom)
-    // Strip the <?OFX?> PI if present since browsers may reject it
+    // Use browser DOMParser (available in all modern browsers and jsdom).
+    // Strip the <?OFX?> PI if present since browsers may reject unknown PIs.
     const xmlStr = text.replace(/<\?OFX[^>]*\?>/i, '');
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlStr, 'application/xml');
+
+    // DOMParser returns a document even on parse errors — detect the error element.
+    const parseError = doc.querySelector('parsererror');
+    if (parseError) {
+      // Fall back to the SGML parser in case the file is OFX 1.x mis-detected as XML.
+      const ofxStart = text.indexOf('<OFX>');
+      const body = ofxStart !== -1 ? text.slice(ofxStart) : text;
+      const sgmlTxns = parseSgmlTransactions(body);
+      if (sgmlTxns.length > 0) {
+        return { transactions: sgmlTxns, ...extractSgmlMeta(body) };
+      }
+      throw new Error(
+        `OFX XML parse error: ${(() => {
+          const msg = parseError.textContent?.trim() ?? 'unknown';
+          return msg.length > 200 ? `${msg.slice(0, 200)}…` : msg;
+        })()}`,
+      );
+    }
+
     return {
       transactions: parseXmlTransactions(doc),
       ...extractXmlMeta(doc),
@@ -181,13 +200,17 @@ export function parseOfx(raw: string): OfxParseResult {
 /**
  * Convert parsed OFX transactions to draft Transaction objects
  * (without accountId or importedAt — caller fills those in).
+ *
+ * The `id` is derived deterministically from the FITID so that re-importing
+ * the same file produces identical IDs and de-duplication remains reliable.
  */
 export function ofxTransactionsToTransactions(
   rows: OfxTransaction[],
   source: 'ofx' | 'qfx',
 ): Omit<Transaction, 'accountId' | 'importedAt'>[] {
   return rows.map(row => ({
-    id: generateTransactionId(),
+    // Use FITID combined with source format as the stable document key.
+    id: `${source}-${row.fitId}`,
     date: row.date,
     description: row.description,
     amount: row.amount,

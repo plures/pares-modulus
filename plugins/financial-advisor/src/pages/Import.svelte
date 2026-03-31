@@ -152,12 +152,19 @@
   async function commitImport(): Promise<void> {
     if (!txnCollection || !selectedAccountId) return;
 
-    stage = 'committing';
-    const now = new Date().toISOString();
     const toSave = newRows;
+    if (toSave.length === 0) return;
 
-    let saved = 0;
+    stage = 'committing';
+    progress = 0;
+    const now = new Date().toISOString();
+
+    // Track which row IDs were saved so we can mark them as duplicates on
+    // partial failure — preventing re-saving them on a retry.
+    const savedIds = new Set<string>();
+
     try {
+      let saved = 0;
       for (const draft of toSave) {
         const txn: Transaction = {
           ...draft,
@@ -165,6 +172,7 @@
           importedAt: now,
         };
         await txnCollection.put(txn.id, txn);
+        savedIds.add(txn.id);
         saved++;
         progress = Math.round((saved / toSave.length) * 100);
       }
@@ -172,11 +180,11 @@
       stage = 'done';
     } catch {
       ctx?.notify.error('Import failed. Some transactions may not have been saved.');
-      // Remove rows that were successfully saved before the failure so that
-      // retrying the import does not create duplicate transactions.
-      if (saved > 0) {
-        newRows = newRows.slice(saved);
-        previewRows = previewRows.slice(saved);
+      // Mark successfully-saved rows as duplicates so retrying skips them.
+      if (savedIds.size > 0) {
+        previewRows = previewRows.map(r =>
+          savedIds.has(r.id) ? { ...r, duplicate: true } : r,
+        );
       }
       stage = 'preview';
     }
