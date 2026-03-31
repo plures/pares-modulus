@@ -122,7 +122,11 @@
       progress = 80;
 
       // ── Duplicate detection ────────────────────────────────────────────────
-      const existing: Transaction[] = (await txnCollection?.query()) ?? [];
+      const accountIdForDuplicates = selectedAccountId;
+      const existing: Transaction[] =
+        accountIdForDuplicates && txnCollection
+          ? await txnCollection.query({ accountId: accountIdForDuplicates })
+          : [];
       const existingFitIds = new Set(existing.map(t => t.fitId).filter(Boolean));
       const existingHashes = new Set(existing.map(t => t.hash).filter(Boolean));
 
