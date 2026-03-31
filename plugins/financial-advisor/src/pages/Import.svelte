@@ -172,6 +172,12 @@
       stage = 'done';
     } catch {
       ctx?.notify.error('Import failed. Some transactions may not have been saved.');
+      // Remove rows that were successfully saved before the failure so that
+      // retrying the import does not create duplicate transactions.
+      if (saved > 0) {
+        newRows = newRows.slice(saved);
+        previewRows = previewRows.slice(saved);
+      }
       stage = 'preview';
     }
   }
