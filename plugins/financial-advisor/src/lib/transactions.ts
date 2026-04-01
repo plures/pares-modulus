@@ -61,7 +61,7 @@ export interface TransactionInference {
   transactionId: string;
   /** Typically "category". */
   field: string;
-  value: string;
+  value: unknown;
   /** 0.0 – 1.0. User-confirmed overrides are stored with confidence = 1.0. */
   confidence: number;
   /** Prose explanation produced by the inference rule. */

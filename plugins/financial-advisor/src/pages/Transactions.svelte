@@ -188,6 +188,7 @@
     if (expandedId === id) {
       expandedId = null;
       decisionChain = [];
+      loadingChain = false;
       return;
     }
     expandedId = id;
@@ -195,7 +196,10 @@
     const requestedId = id;
 
     const inf = inferenceMap.get(id);
-    if (!inf || !ctx) return;
+    if (!inf || !ctx) {
+      loadingChain = false;
+      return;
+    }
 
     loadingChain = true;
     try {
