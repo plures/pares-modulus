@@ -5,7 +5,7 @@
     FA_TRANSACTIONS_COLLECTION,
     FA_INFERENCES_COLLECTION,
     confidenceLevel,
-    generateInferenceId,
+
     type Transaction,
     type TransactionInference,
   } from '../lib/transactions.js';
@@ -68,14 +68,6 @@
   let rejectSaving = $state(false);
   let rejectError = $state('');
 
-  // ── Derived: inference map keyed by transactionId ────────────────────────
-  const inferenceMap = $derived(
-    new Map<string, TransactionInference>(
-      allInferences
-        .filter(inf => inf.field === 'category')
-        .map(inf => [inf.transactionId, inf]),
-    ),
-  );
 
   // ── Derived: transaction map keyed by id ─────────────────────────────────
   const transactionMap = $derived(new Map(allTransactions.map(tx => [tx.id, tx])));
@@ -105,21 +97,23 @@
   // ── Derived: statistics ───────────────────────────────────────────────────
   const stats = $derived(
     (() => {
-      const total = allInferences.filter(inf => inf.field === 'category').length;
-      const userConfirmed = allInferences.filter(
-        inf => inf.field === 'category' && inf.userConfirmed && inf.sourceId !== 'user',
+      const categoryInferences = allInferences.filter(inf => inf.field === 'category');
+      const total = categoryInferences.length;
+      const unconfirmedTotal = categoryInferences.filter(inf => !inf.userConfirmed).length;
+      const userConfirmed = categoryInferences.filter(
+        inf => inf.userConfirmed && inf.sourceId !== 'user',
       ).length;
-      const userRejected = allInferences.filter(
-        inf => inf.field === 'category' && inf.userConfirmed && inf.sourceId === 'user',
+      const userRejected = categoryInferences.filter(
+        inf => inf.userConfirmed && inf.sourceId === 'user',
       ).length;
       // auto-confirmed = confirmed but NOT by a direct user action or rejection
-      const autoConfirmed = total - unconfirmedRows.length - userConfirmed - userRejected;
+      const autoConfirmed = total - unconfirmedTotal - userConfirmed - userRejected;
       return {
         total,
         autoConfirmed: Math.max(0, autoConfirmed),
         userConfirmed,
         userRejected,
-        pending: unconfirmedRows.length,
+        pending: unconfirmedTotal,
       };
     })(),
   );
@@ -182,16 +176,18 @@
     if (!infCollection || !ctx || selectedIds.size === 0) return;
     batchConfirming = true;
     const now = new Date().toISOString();
-    const toConfirm = allInferences.filter(inf => selectedIds.has(inf.id));
+    const toConfirm = unconfirmedRows
+      .filter(row => selectedIds.has(row.inf.id))
+      .map(row => row.inf);
     try {
       await Promise.all(
         toConfirm.map(inf => {
-          const updated: TransactionInference = {
+          const updated = {
             ...inf,
             userConfirmed: true,
             updatedAt: now,
-          };
-          return infCollection!.put(inf.id, updated as unknown as Record<string, unknown>).then(() => {
+          } satisfies TransactionInference & Record<string, unknown>;
+          return infCollection!.put(inf.id, updated).then(() => {
             allInferences = allInferences.map(i => (i.id === inf.id ? updated : i));
           });
         }),
