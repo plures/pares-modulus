@@ -13,26 +13,7 @@
     FA_ACCOUNTS_COLLECTION,
     type Account,
   } from '../lib/accounts.js';
-
-  // ── Well-known categories ─────────────────────────────────────────────────
-  const CATEGORIES = [
-    'Food & Dining',
-    'Groceries',
-    'Shopping',
-    'Entertainment',
-    'Travel',
-    'Transportation',
-    'Utilities',
-    'Healthcare',
-    'Insurance',
-    'Housing',
-    'Subscriptions',
-    'Education',
-    'Income',
-    'Transfer',
-    'Refund',
-    'Other',
-  ] as const;
+  import { TRANSACTION_CATEGORIES as CATEGORIES } from '../lib/categories.js';
 
   type SortField = 'date' | 'amount' | 'confidence';
   type SortDir = 'asc' | 'desc';
