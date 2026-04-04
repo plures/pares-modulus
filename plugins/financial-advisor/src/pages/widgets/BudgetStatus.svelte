@@ -80,7 +80,9 @@
     }
     Promise.all([
       ctx.data.collection<Transaction>(FA_TRANSACTIONS_COLLECTION).query(),
-      ctx.data.collection<TransactionInference>(FA_INFERENCES_COLLECTION).query(),
+      ctx.data
+        .collection<TransactionInference>(FA_INFERENCES_COLLECTION)
+        .query({ field: 'category' }),
       ctx.data.collection<Budget>(FA_BUDGETS_COLLECTION).query(),
     ])
       .then(([txs, infs, bgets]) => {
@@ -88,8 +90,10 @@
         inferences = infs;
         budgets = bgets;
       })
-      .catch(() => {
-        /* show empty state on error */
+      .catch((error) => {
+        ctx.notify?.error?.(
+          `Failed to load budget status data${error instanceof Error && error.message ? `: ${error.message}` : '.'}`,
+        );
       })
       .finally(() => {
         loading = false;
@@ -150,7 +154,7 @@
           >
             <div
               class="progress-fill"
-              style:width="{row.pct}%"
+              style:width={`${row.pct}%`}
               style:background={color}
             ></div>
           </div>

@@ -81,8 +81,10 @@
         accounts = accts;
         transactions = txs;
       })
-      .catch(() => {
-        /* show empty state on error */
+      .catch((error) => {
+        ctx.notify?.error?.(
+          `Failed to load net worth data${error instanceof Error && error.message ? `: ${error.message}` : '.'}`,
+        );
       })
       .finally(() => {
         loading = false;

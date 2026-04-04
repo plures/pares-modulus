@@ -47,14 +47,17 @@
     }
     Promise.all([
       ctx.data.collection<Transaction>(FA_TRANSACTIONS_COLLECTION).query(),
-      ctx.data.collection<TransactionInference>(FA_INFERENCES_COLLECTION).query(),
+      ctx
+        .data
+        .collection<TransactionInference>(FA_INFERENCES_COLLECTION)
+        .query({ field: 'category' }),
     ])
       .then(([txs, infs]) => {
         transactions = txs;
         inferences = infs;
       })
-      .catch(() => {
-        /* show empty state on error */
+      .catch((error) => {
+        ctx.notify?.error?.('Failed to load recent transactions.');
       })
       .finally(() => {
         loading = false;
