@@ -16,10 +16,13 @@
   import type { Transaction, TransactionInference } from '../lib/transactions.js';
   import { BUDGET_CATEGORIES as CATEGORIES } from '../lib/categories.js';
 
+  type PluginContext = NonNullable<ReturnType<typeof getPluginContext>>;
+  type CollectionOf<T> = ReturnType<PluginContext['data']['collection']<T>>;
+
   let ctx: ReturnType<typeof getPluginContext>;
-  let budgetCollection: any;
-  let txCollection: any;
-  let infCollection: any;
+  let budgetCollection: CollectionOf<Budget>;
+  let txCollection: CollectionOf<Transaction>;
+  let infCollection: CollectionOf<TransactionInference>;
 
   // ── Page state ─────────────────────────────────────────────────────────────
   let budgets = $state<Budget[]>([]);
@@ -101,7 +104,8 @@
     const prevMo = previousMonthPrefix();
 
     const allTx: Transaction[] = (await txCollection?.query()) ?? [];
-    const allInf: TransactionInference[] = (await infCollection?.query()) ?? [];
+    const allInf: TransactionInference[] =
+      (await infCollection?.query({ field: 'category' })) ?? [];
 
     // Build a map: transactionId → category
     const catMap = new Map<string, string>();
@@ -282,7 +286,7 @@
     const prev = previousSpend[category] ?? 0;
     if (prev === 0 && curr === 0) return '';
     const diff = curr - prev;
-    const sign = diff >= 0 ? '+' : '';
+    const sign = diff > 0 ? '+' : '';
     return `${sign}${formatCurrency(diff)} vs ${previousMonthLabel}`;
   }
 
