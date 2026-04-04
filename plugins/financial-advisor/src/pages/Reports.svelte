@@ -75,13 +75,12 @@
     return result;
   }
 
-  const fmt = (n: number) =>
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0,
-    }).format(n);
+  const currencyFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  });
 
+  const fmt = (n: number) => currencyFormatter.format(n);
   function buildPieSlicePath(startAngle: number, endAngle: number): string {
     const large = endAngle - startAngle > Math.PI ? 1 : 0;
     const x1 = PIE_CX + PIE_R * Math.cos(startAngle);
@@ -109,26 +108,49 @@
 
   const monthPrefixes = $derived(getMonthPrefixes(periodMonths));
 
-  // ── Derived: per-month income / expense / by-category breakdown ────────────
-  const monthlyData = $derived(
-    monthPrefixes.map((prefix): MonthSummary => {
-      const byCategory: Record<string, number> = {};
-      let income = 0;
-      let expenses = 0;
+  const monthlySummariesByPrefix = $derived(
+    (() => {
+      const summaries = new Map<
+        string,
+        { income: number; expenses: number; byCategory: Record<string, number> }
+      >();
+
       for (const tx of transactions) {
-        if (!tx.date.startsWith(prefix)) continue;
+        const prefix = tx.date.slice(0, 7);
+        let summary = summaries.get(prefix);
+
+        if (!summary) {
+          summary = { income: 0, expenses: 0, byCategory: {} };
+          summaries.set(prefix, summary);
+        }
+
         if (tx.amount > 0) {
-          income += tx.amount;
+          summary.income += tx.amount;
         } else {
           const spend = Math.abs(tx.amount);
-          expenses += spend;
+          summary.expenses += spend;
           const cat = catMap.get(tx.id);
           if (cat && cat !== 'Income' && cat !== 'Transfer' && cat !== 'Refund') {
-            byCategory[cat] = (byCategory[cat] ?? 0) + spend;
+            summary.byCategory[cat] = (summary.byCategory[cat] ?? 0) + spend;
           }
         }
       }
-      return { prefix, label: monthLabel(prefix), income, expenses, byCategory };
+
+      return summaries;
+    })(),
+  );
+
+  // ── Derived: per-month income / expense / by-category breakdown ────────────
+  const monthlyData = $derived(
+    monthPrefixes.map((prefix): MonthSummary => {
+      const summary = monthlySummariesByPrefix.get(prefix);
+      return {
+        prefix,
+        label: monthLabel(prefix),
+        income: summary?.income ?? 0,
+        expenses: summary?.expenses ?? 0,
+        byCategory: summary ? { ...summary.byCategory } : {},
+      };
     }),
   );
 
@@ -242,11 +264,26 @@
         label: fmt((maxVal / 4) * i),
       }));
 
-      const xLabels = monthlyData.map((m, i) => ({
-        x: xOf(i),
-        label: m.label.split(' ')[0],
-      }));
+      const monthParts = monthlyData.map(m => m.label.split(' '));
+      const monthCounts = monthParts.reduce(
+        (counts, parts) => {
+          const month = parts[0] ?? '';
+          counts.set(month, (counts.get(month) ?? 0) + 1);
+          return counts;
+        },
+        new Map<string, number>(),
+      );
+      const useYearSuffix = Array.from(monthCounts.values()).some(count => count > 1);
 
+      const xLabels = monthlyData.map((m, i) => {
+        const [month, year] = m.label.split(' ');
+        const shortYear = year ? `'${year.slice(-2)}` : '';
+
+        return {
+          x: xOf(i),
+          label: useYearSuffix && shortYear ? `${month} ${shortYear}` : month,
+        };
+      });
       return { lines, yTicks, xLabels };
     })(),
   );
@@ -314,12 +351,18 @@
       const gap = 2;
       const chartH = C_Y1 - C_Y0;
       const yOf = (v: number) => C_Y1 - (v / maxVal) * chartH;
+      const monthTokenCounts = monthlyData.reduce((counts, m) => {
+        const monthToken = m.label.split(' ')[0];
+        counts.set(monthToken, (counts.get(monthToken) ?? 0) + 1);
+        return counts;
+      }, new Map<string, number>());
 
       const groups = monthlyData.map((m, i) => {
         const gx = C_X0 + i * groupW + groupW / 2;
+        const monthToken = m.label.split(' ')[0];
         return {
           labelX: gx,
-          label: m.label.split(' ')[0],
+          label: (monthTokenCounts.get(monthToken) ?? 0) > 1 ? m.label : monthToken,
           income: m.income,
           expenses: m.expenses,
           incomeRect: {
@@ -353,23 +396,21 @@
     txCollection = ctx?.data.collection<Transaction>(FA_TRANSACTIONS_COLLECTION);
     infCollection = ctx?.data.collection<TransactionInference>(FA_INFERENCES_COLLECTION);
     budgetCollection = ctx?.data.collection<Budget>(FA_BUDGETS_COLLECTION);
-    loadAll().catch(() => {
-      ctx?.notify.error('Failed to load report data.');
-      loading = false;
-    });
+    loadAll();
   });
 
   async function loadAll(): Promise<void> {
     loading = true;
     try {
       const [txData, infData, budgetData] = await Promise.all([
-        txCollection?.query() ?? Promise.resolve([]),
-        infCollection?.query({ field: 'category' }) ?? Promise.resolve([]),
-        budgetCollection?.query() ?? Promise.resolve([]),
+        txCollection?.query() ?? Promise.resolve([] as Transaction[]),
+        infCollection?.query({ field: 'category' }) ??
+          Promise.resolve([] as TransactionInference[]),
+        budgetCollection?.query() ?? Promise.resolve([] as Budget[]),
       ]);
-      transactions = txData as Transaction[];
-      inferences = infData as TransactionInference[];
-      budgets = budgetData as Budget[];
+      transactions = txData;
+      inferences = infData;
+      budgets = budgetData;
     } catch {
       ctx?.notify.error('Failed to load report data.');
     } finally {
@@ -573,7 +614,7 @@
         {#if lineChartData === null}
           <div class="chart-empty" role="status">
             Not enough categorized data to show trends. Try
-            <a href="/financial-advisor/review" class="chart-link">reviewing categorisations</a>.
+            <a href="/financial-advisor/review" class="chart-link">reviewing categorizations</a>.
           </div>
         {:else}
           <div class="chart-legend" aria-label="Trend lines legend">
