@@ -43,7 +43,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 'lts/*'
 
       - run: npm ci || npm install --no-save
 
@@ -94,7 +94,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 'lts/*'
       - run: npm ci || npm install --no-save
       - name: Verify registry builds cleanly
         run: npx tsx scripts/build-registry.ts
