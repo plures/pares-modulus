@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Button, Input, Select, Dialog } from '@plures/design-dojo';
   import { getPluginContext } from '../lib/context.js';
   import {
     FA_TRANSACTIONS_COLLECTION,
@@ -288,27 +289,6 @@
     }
   }
 
-  // ── Modal action ──────────────────────────────────────────────────────────
-  function useModal(node: HTMLDialogElement, params: { onClose: () => void }) {
-    function handleCancel(e: Event) {
-      e.preventDefault();
-      params.onClose();
-    }
-    function handleBackdropClick(e: MouseEvent) {
-      if (e.target === node) params.onClose();
-    }
-    node.showModal();
-    node.addEventListener('cancel', handleCancel);
-    node.addEventListener('click', handleBackdropClick);
-    return {
-      destroy() {
-        node.removeEventListener('cancel', handleCancel);
-        node.removeEventListener('click', handleBackdropClick);
-        if (node.open) node.close();
-      },
-    };
-  }
-
   // ── Formatters ────────────────────────────────────────────────────────────
   function formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
@@ -346,14 +326,14 @@
       {/if}
     </div>
     {#if someSelected}
-      <button
+      <Button
         class="btn btn--primary"
         onclick={() => batchConfirm().catch((err: unknown) => console.error('[review] batchConfirm:', err))}
         disabled={batchConfirming}
         aria-label="Confirm {selectedIds.size} selected categorization{selectedIds.size === 1 ? '' : 's'}"
       >
         {batchConfirming ? 'Confirming…' : `Confirm ${selectedIds.size} Selected`}
-      </button>
+      </Button>
     {/if}
   </header>
 
@@ -388,7 +368,7 @@
     <div class="filter-bar__row">
       <div class="filter-field">
         <label class="filter-field__label" for="filter-strategy">Rule Strategy</label>
-        <select
+        <Select
           id="filter-strategy"
           class="field__select"
           bind:value={filterStrategy}
@@ -397,15 +377,15 @@
           {#each RULE_STRATEGIES as rule}
             <option value={rule.id}>{rule.label}</option>
           {/each}
-        </select>
+        </Select>
       </div>
       {#if filterStrategy}
-        <button
+        <Button
           class="btn btn--ghost btn--sm filter-clear"
           onclick={() => { filterStrategy = ''; }}
         >
           ✕ Clear
-        </button>
+        </Button>
       {/if}
     </div>
   </section>
@@ -434,9 +414,9 @@
         {/if}
       </p>
       {#if filterStrategy}
-        <button class="btn btn--ghost" onclick={() => { filterStrategy = ''; }}>
+        <Button class="btn btn--ghost" onclick={() => { filterStrategy = ''; }}>
           Clear filter
-        </button>
+        </Button>
       {/if}
     </div>
 
@@ -446,7 +426,7 @@
       <!-- Table header -->
       <div class="review-table__head" role="row">
         <div class="review-table__th review-table__th--check" role="columnheader">
-          <input
+          <Input
             type="checkbox"
             class="checkbox"
             checked={allSelected}
@@ -489,7 +469,7 @@
           <div class="review-row__main">
             <!-- Checkbox -->
             <span class="review-row__check" role="cell">
-              <input
+              <Input
                 type="checkbox"
                 class="checkbox"
                 checked={isSelected}
@@ -542,21 +522,21 @@
 
             <!-- Actions -->
             <span class="review-row__actions" role="cell">
-              <button
+              <Button
                 class="btn btn--ghost btn--sm"
                 onclick={() => openReject(inf, tx)}
                 aria-label="Reject and correct category for {tx?.description ?? inf.transactionId}"
               >
                 Reject
-              </button>
-              <button
+              </Button>
+              <Button
                 class="btn btn--ghost btn--sm btn--icon-only"
                 onclick={() => toggleExpand(inf.id).catch((err: unknown) => console.error('[review] toggleExpand:', err))}
                 aria-label="{isExpanded ? 'Collapse' : 'Expand'} decision chain for {tx?.description ?? inf.transactionId}"
                 aria-expanded={isExpanded}
               >
                 {isExpanded ? '▲' : '▼'}
-              </button>
+              </Button>
             </span>
           </div>
 
@@ -605,21 +585,21 @@
 
 <!-- ── Reject / override dialog ───────────────────────────────────────────── -->
 {#if rejectInference !== null}
-  <dialog
-    use:useModal={{ onClose: closeReject }}
+  <Dialog
+    onclose={closeReject}
     class="dialog"
     aria-modal="true"
     aria-labelledby="reject-dialog-title"
   >
     <header class="dialog__header">
       <h2 class="dialog__title" id="reject-dialog-title">Correct Category</h2>
-      <button
+      <Button
         class="btn btn--ghost btn--icon"
         onclick={closeReject}
         aria-label="Close dialog"
       >
         ✕
-      </button>
+      </Button>
     </header>
 
     <form
@@ -652,7 +632,7 @@
         <label class="field__label" for="reject-category">
           Correct Category <span aria-hidden="true">*</span>
         </label>
-        <select
+        <Select
           id="reject-category"
           class="field__select"
           bind:value={rejectCategory}
@@ -662,24 +642,24 @@
           {#each CATEGORIES as cat}
             <option value={cat}>{cat}</option>
           {/each}
-        </select>
+        </Select>
       </div>
 
       <footer class="dialog__footer">
-        <button
+        <Button
           class="btn btn--ghost"
           type="button"
           onclick={closeReject}
           disabled={rejectSaving}
         >
           Cancel
-        </button>
-        <button class="btn btn--primary" type="submit" disabled={rejectSaving}>
+        </Button>
+        <Button class="btn btn--primary" type="submit" disabled={rejectSaving}>
           {rejectSaving ? 'Saving…' : 'Save Correction'}
-        </button>
+        </Button>
       </footer>
     </form>
-  </dialog>
+  </Dialog>
 {/if}
 
 <style>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Button, Input, Select, Table } from '@plures/design-dojo';
   import { getPluginContext } from '../lib/context.js';
   import {
     FA_TRANSACTIONS_COLLECTION,
@@ -228,9 +229,9 @@
       </p>
     </div>
     {#if stage === 'preview' || stage === 'done'}
-      <button class="btn btn--ghost" onclick={resetImport}>
+      <Button class="btn btn--ghost" onclick={resetImport}>
         ← Start Over
-      </button>
+      </Button>
     {/if}
   </header>
 
@@ -238,7 +239,7 @@
   {#if accounts.length > 0 && stage !== 'done'}
     <div class="account-selector">
       <label class="field__label" for="target-account">Import into account</label>
-      <select
+      <Select
         id="target-account"
         class="field__select"
         bind:value={selectedAccountId}
@@ -247,7 +248,7 @@
         {#each accounts as account (account.id)}
           <option value={account.id}>{account.name}{account.institution ? ` — ${account.institution}` : ''}</option>
         {/each}
-      </select>
+      </Select>
     </div>
   {/if}
 
@@ -272,7 +273,7 @@
         Drag &amp; drop a file here, or <span class="drop-zone__browse">browse</span>
       </span>
       <span class="drop-zone__secondary">Supports CSV, OFX, and QFX formats</span>
-      <input
+      <Input
         id="file-input"
         class="drop-zone__input"
         type="file"
@@ -327,7 +328,7 @@
     </div>
 
     <div class="table-wrapper" role="region" aria-label="Transaction preview" tabindex="0">
-      <table class="preview-table" aria-label="Imported transactions preview">
+      <Table class="preview-table" aria-label="Imported transactions preview">
         <thead>
           <tr>
             <th scope="col">Date</th>
@@ -360,14 +361,14 @@
             </tr>
           {/each}
         </tbody>
-      </table>
+      </Table>
     </div>
 
     <footer class="preview-footer">
-      <button class="btn btn--ghost" onclick={resetImport} disabled={stage !== 'preview'}>
+      <Button class="btn btn--ghost" onclick={resetImport} disabled={stage !== 'preview'}>
         Cancel
-      </button>
-      <button
+      </Button>
+      <Button
         class="btn btn--primary"
         onclick={() => {
           commitImport().catch(() => ctx?.notify.error('Import failed.'));
@@ -376,7 +377,7 @@
         aria-disabled={!canCommit}
       >
         Import {newRows.length} Transaction{newRows.length === 1 ? '' : 's'}
-      </button>
+      </Button>
     </footer>
   {/if}
 
@@ -396,9 +397,9 @@
         <a class="btn btn--primary" href="/financial-advisor/transactions">
           View Transactions
         </a>
-        <button class="btn btn--ghost" onclick={resetImport}>
+        <Button class="btn btn--ghost" onclick={resetImport}>
           Import Another File
-        </button>
+        </Button>
       </div>
     </div>
   {/if}

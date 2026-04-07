@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Button, Input, Select, Dialog } from '@plures/design-dojo';
   import { getPluginContext } from '../lib/context.js';
   import {
     FA_BUDGETS_COLLECTION,
@@ -134,27 +135,6 @@
 
     currentSpend = curr;
     previousSpend = prev;
-  }
-
-  // ── Native <dialog> action ─────────────────────────────────────────────────
-  function useModal(node: HTMLDialogElement, params: { onClose: () => void }) {
-    function handleCancel(e: Event) {
-      e.preventDefault();
-      params.onClose();
-    }
-    function handleBackdropClick(e: MouseEvent) {
-      if (e.target === node) params.onClose();
-    }
-    node.showModal();
-    node.addEventListener('cancel', handleCancel);
-    node.addEventListener('click', handleBackdropClick);
-    return {
-      destroy() {
-        node.removeEventListener('cancel', handleCancel);
-        node.removeEventListener('click', handleBackdropClick);
-        if (node.open) node.close();
-      },
-    };
   }
 
   // ── Form helpers ───────────────────────────────────────────────────────────
@@ -314,9 +294,9 @@
       {/if}
     </div>
     {#if !loading && availableCategories.length > 0}
-      <button class="btn btn--primary" onclick={openCreate} aria-label="Add budget">
+      <Button class="btn btn--primary" onclick={openCreate} aria-label="Add budget">
         + Add Budget
-      </button>
+      </Button>
     {/if}
   </header>
 
@@ -337,9 +317,9 @@
         Set monthly spending limits by category to keep your finances on track.
         You'll get warnings when you're approaching or over your limit.
       </p>
-      <button class="btn btn--primary btn--lg" onclick={openCreate}>
+      <Button class="btn btn--primary btn--lg" onclick={openCreate}>
         Create Your First Budget
-      </button>
+      </Button>
     </div>
 
   <!-- Budget list -->
@@ -367,20 +347,20 @@
               </span>
             </div>
             <div class="budget-card__actions">
-              <button
+              <Button
                 class="btn btn--ghost btn--sm"
                 onclick={() => openEdit(budget)}
                 aria-label={`Edit ${budget.category} budget`}
               >
                 Edit
-              </button>
-              <button
+              </Button>
+              <Button
                 class="btn btn--ghost btn--sm btn--danger"
                 onclick={() => (confirmDeleteId = budget.id)}
                 aria-label={`Delete ${budget.category} budget`}
               >
                 Delete
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -440,8 +420,8 @@
 
 <!-- ── Budget form dialog ──────────────────────────────────────────────────── -->
 {#if showForm}
-  <dialog
-    use:useModal={{ onClose: closeForm }}
+  <Dialog
+    onclose={closeForm}
     class="dialog"
     aria-modal="true"
     aria-labelledby="dialog-title"
@@ -450,13 +430,13 @@
       <h2 class="dialog__title" id="dialog-title">
         {isEditMode ? 'Edit Budget' : 'Add Budget'}
       </h2>
-      <button
+      <Button
         class="btn btn--ghost btn--icon"
         onclick={closeForm}
         aria-label="Close dialog"
       >
         ✕
-      </button>
+      </Button>
     </header>
 
     <form
@@ -479,7 +459,7 @@
         </label>
         {#if isEditMode}
           <!-- When editing, show category as read-only text (can't change the key) -->
-          <input
+          <Input
             id="budget-category"
             class="field__input"
             type="text"
@@ -488,11 +468,11 @@
             aria-readonly="true"
           />
         {:else}
-          <select id="budget-category" class="field__select" bind:value={formCategory}>
+          <Select id="budget-category" class="field__select" bind:value={formCategory}>
             {#each availableCategories as cat}
               <option value={cat}>{cat}</option>
             {/each}
-          </select>
+          </Select>
         {/if}
       </div>
 
@@ -502,7 +482,7 @@
         </label>
         <div class="field__prefix-wrap">
           <span class="field__prefix" aria-hidden="true">$</span>
-          <input
+          <Input
             id="budget-limit"
             class="field__input field__input--prefixed"
             type="number"
@@ -521,7 +501,7 @@
           <span class="field__hint">Warn me when spending reaches this % of the limit</span>
         </label>
         <div class="field__suffix-wrap">
-          <input
+          <Input
             id="budget-threshold"
             class="field__input field__input--suffixed"
             type="number"
@@ -537,26 +517,26 @@
       </div>
 
       <footer class="dialog__footer">
-        <button
+        <Button
           class="btn btn--ghost"
           type="button"
           onclick={closeForm}
           disabled={saving}
         >
           Cancel
-        </button>
-        <button class="btn btn--primary" type="submit" disabled={saving}>
+        </Button>
+        <Button class="btn btn--primary" type="submit" disabled={saving}>
           {saving ? 'Saving…' : isEditMode ? 'Save Changes' : 'Add Budget'}
-        </button>
+        </Button>
       </footer>
     </form>
-  </dialog>
+  </Dialog>
 {/if}
 
 <!-- ── Delete confirmation dialog ─────────────────────────────────────────── -->
 {#if confirmDeleteId !== null}
-  <dialog
-    use:useModal={{ onClose: () => (confirmDeleteId = null) }}
+  <Dialog
+    onclose={() => (confirmDeleteId = null)}
     class="dialog dialog--sm"
     aria-modal="true"
     aria-labelledby="confirm-title"
@@ -572,13 +552,13 @@
       </p>
     </div>
     <footer class="dialog__footer">
-      <button
+      <Button
         class="btn btn--ghost"
         onclick={() => (confirmDeleteId = null)}
       >
         Cancel
-      </button>
-      <button
+      </Button>
+      <Button
         class="btn btn--danger"
         onclick={() => {
           if (confirmDeleteId) {
@@ -589,9 +569,9 @@
         }}
       >
         Delete
-      </button>
+      </Button>
     </footer>
-  </dialog>
+  </Dialog>
 {/if}
 
 <style>

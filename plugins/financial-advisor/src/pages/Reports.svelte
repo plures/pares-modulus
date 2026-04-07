@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Select, Table } from '@plures/design-dojo';
   import { getPluginContext } from '../lib/context.js';
   import {
     FA_TRANSACTIONS_COLLECTION,
@@ -438,7 +439,7 @@
     {#if !loading}
       <div class="period-selector">
         <label class="period-selector__label" for="period-select">Period</label>
-        <select
+        <Select
           id="period-select"
           class="field__select period-selector__select"
           bind:value={periodMonths}
@@ -447,7 +448,7 @@
           <option value={3}>Last 3 months</option>
           <option value={6}>Last 6 months</option>
           <option value={12}>Last 12 months</option>
-        </select>
+        </Select>
       </div>
     {/if}
   </header>
@@ -746,7 +747,7 @@
 
           <!-- Summary table -->
           <div class="variance-table-wrap">
-            <table class="variance-table" aria-label="Budget variance details">
+            <Table class="variance-table" aria-label="Budget variance details">
               <thead>
                 <tr>
                   <th scope="col">Category</th>
@@ -772,7 +773,7 @@
                   </tr>
                 {/each}
               </tbody>
-            </table>
+            </Table>
           </div>
         {/if}
       </section>

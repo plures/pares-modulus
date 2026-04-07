@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Button, Input, Select, Dialog } from '@plures/design-dojo';
   import { getPluginContext } from '../lib/context.js';
   import {
     FA_TRANSACTIONS_COLLECTION,
@@ -259,26 +260,6 @@
     }
   }
 
-  // ── Modal action ──────────────────────────────────────────────────────────
-  function useModal(node: HTMLDialogElement, params: { onClose: () => void }) {
-    function handleCancel(e: Event) {
-      e.preventDefault();
-      params.onClose();
-    }
-    function handleBackdropClick(e: MouseEvent) {
-      if (e.target === node) params.onClose();
-    }
-    node.showModal();
-    node.addEventListener('cancel', handleCancel);
-    node.addEventListener('click', handleBackdropClick);
-    return {
-      destroy() {
-        node.removeEventListener('cancel', handleCancel);
-        node.removeEventListener('click', handleBackdropClick);
-        if (node.open) node.close();
-      },
-    };
-  }
 
   // ── Formatters ────────────────────────────────────────────────────────────
   function formatCurrency(amount: number): string {
@@ -335,7 +316,7 @@
       <!-- Account -->
       <div class="filter-field">
         <label class="filter-field__label" for="filter-account">Account</label>
-        <select
+        <Select
           id="filter-account"
           class="field__select"
           bind:value={filterAccountId}
@@ -344,13 +325,13 @@
           {#each accounts as acct (acct.id)}
             <option value={acct.id}>{acct.name}</option>
           {/each}
-        </select>
+        </Select>
       </div>
 
       <!-- Date from -->
       <div class="filter-field">
         <label class="filter-field__label" for="filter-date-from">From</label>
-        <input
+        <Input
           id="filter-date-from"
           class="field__input"
           type="date"
@@ -361,7 +342,7 @@
       <!-- Date to -->
       <div class="filter-field">
         <label class="filter-field__label" for="filter-date-to">To</label>
-        <input
+        <Input
           id="filter-date-to"
           class="field__input"
           type="date"
@@ -372,7 +353,7 @@
       <!-- Category -->
       <div class="filter-field">
         <label class="filter-field__label" for="filter-category">Category</label>
-        <select
+        <Select
           id="filter-category"
           class="field__select"
           bind:value={filterCategory}
@@ -381,13 +362,13 @@
           {#each CATEGORIES as cat}
             <option value={cat}>{cat}</option>
           {/each}
-        </select>
+        </Select>
       </div>
 
       <!-- Amount min -->
       <div class="filter-field filter-field--sm">
         <label class="filter-field__label" for="filter-amt-min">Min $</label>
-        <input
+        <Input
           id="filter-amt-min"
           class="field__input"
           type="number"
@@ -400,7 +381,7 @@
       <!-- Amount max -->
       <div class="filter-field filter-field--sm">
         <label class="filter-field__label" for="filter-amt-max">Max $</label>
-        <input
+        <Input
           id="filter-amt-max"
           class="field__input"
           type="number"
@@ -411,9 +392,9 @@
       </div>
 
       {#if hasFilters}
-        <button class="btn btn--ghost btn--sm filter-clear" onclick={clearFilters}>
+        <Button class="btn btn--ghost btn--sm filter-clear" onclick={clearFilters}>
           ✕ Clear
-        </button>
+        </Button>
       {/if}
     </div>
   </section>
@@ -442,7 +423,7 @@
       <span class="empty-state__icon" aria-hidden="true">🔍</span>
       <h2 class="empty-state__heading">No matching transactions</h2>
       <p class="empty-state__body">Try adjusting your filters.</p>
-      <button class="btn btn--ghost" onclick={clearFilters}>Clear filters</button>
+      <Button class="btn btn--ghost" onclick={clearFilters}>Clear filters</Button>
     </div>
 
   <!-- Transaction list -->
@@ -450,33 +431,33 @@
     <div class="tx-table" role="table" aria-label="Transactions">
       <!-- Table header -->
       <div class="tx-table__head" role="row">
-        <button
+        <Button
           class="tx-table__th tx-table__th--date"
           role="columnheader"
           aria-sort={sortField === 'date' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
           onclick={() => toggleSort('date')}
         >
           Date <span class="sort-icon" aria-hidden="true">{sortIcon('date')}</span>
-        </button>
+        </Button>
         <span class="tx-table__th tx-table__th--vendor" role="columnheader">Vendor / Description</span>
-        <button
+        <Button
           class="tx-table__th tx-table__th--amount"
           role="columnheader"
           aria-sort={sortField === 'amount' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
           onclick={() => toggleSort('amount')}
         >
           Amount <span class="sort-icon" aria-hidden="true">{sortIcon('amount')}</span>
-        </button>
+        </Button>
         <span class="tx-table__th tx-table__th--account" role="columnheader">Account</span>
         <span class="tx-table__th tx-table__th--category" role="columnheader">Category</span>
-        <button
+        <Button
           class="tx-table__th tx-table__th--confidence"
           role="columnheader"
           aria-sort={sortField === 'confidence' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
           onclick={() => toggleSort('confidence')}
         >
           Confidence <span class="sort-icon" aria-hidden="true">{sortIcon('confidence')}</span>
-        </button>
+        </Button>
         <span class="tx-table__th tx-table__th--actions" role="columnheader">
           <span class="sr-only">Actions</span>
         </span>
@@ -533,21 +514,21 @@
               {/if}
             </span>
             <span class="tx-row__actions" role="cell">
-              <button
+              <Button
                 class="btn btn--ghost btn--sm"
                 onclick={() => openOverride(tx)}
                 aria-label="Set category for {tx.description}"
               >
                 Categorize
-              </button>
-              <button
+              </Button>
+              <Button
                 class="btn btn--ghost btn--sm btn--icon-only"
                 onclick={() => toggleExpand(tx.id).catch(() => {})}
                 aria-label="{isExpanded ? 'Collapse' : 'Expand'} details for {tx.description}"
                 aria-expanded={isExpanded}
               >
                 {isExpanded ? '▲' : '▼'}
-              </button>
+              </Button>
             </span>
           </div>
 
@@ -604,21 +585,21 @@
 
 <!-- ── Category override dialog ───────────────────────────────────────────── -->
 {#if overrideTransaction !== null}
-  <dialog
-    use:useModal={{ onClose: closeOverride }}
+  <Dialog
+    onclose={closeOverride}
     class="dialog"
     aria-modal="true"
     aria-labelledby="override-dialog-title"
   >
     <header class="dialog__header">
       <h2 class="dialog__title" id="override-dialog-title">Set Category</h2>
-      <button
+      <Button
         class="btn btn--ghost btn--icon"
         onclick={closeOverride}
         aria-label="Close dialog"
       >
         ✕
-      </button>
+      </Button>
     </header>
 
     <form
@@ -644,7 +625,7 @@
         <label class="field__label" for="override-category">
           Category <span aria-hidden="true">*</span>
         </label>
-        <select
+        <Select
           id="override-category"
           class="field__select"
           bind:value={overrideCategory}
@@ -654,24 +635,24 @@
           {#each CATEGORIES as cat}
             <option value={cat}>{cat}</option>
           {/each}
-        </select>
+        </Select>
       </div>
 
       <footer class="dialog__footer">
-        <button
+        <Button
           class="btn btn--ghost"
           type="button"
           onclick={closeOverride}
           disabled={overrideSaving}
         >
           Cancel
-        </button>
-        <button class="btn btn--primary" type="submit" disabled={overrideSaving}>
+        </Button>
+        <Button class="btn btn--primary" type="submit" disabled={overrideSaving}>
           {overrideSaving ? 'Saving…' : 'Save Category'}
-        </button>
+        </Button>
       </footer>
     </form>
-  </dialog>
+  </Dialog>
 {/if}
 
 <style>
