@@ -423,6 +423,7 @@
   <Dialog
     onclose={closeForm}
     class="dialog"
+    aria-modal="true"
     aria-labelledby="dialog-title"
   >
     <header class="dialog__header">
@@ -537,6 +538,7 @@
   <Dialog
     onclose={() => (confirmDeleteId = null)}
     class="dialog dialog--sm"
+    aria-modal="true"
     aria-labelledby="confirm-title"
   >
     <header class="dialog__header">

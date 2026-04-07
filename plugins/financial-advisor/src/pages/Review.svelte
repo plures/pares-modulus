@@ -588,6 +588,7 @@
   <Dialog
     onclose={closeReject}
     class="dialog"
+    aria-modal="true"
     aria-labelledby="reject-dialog-title"
   >
     <header class="dialog__header">

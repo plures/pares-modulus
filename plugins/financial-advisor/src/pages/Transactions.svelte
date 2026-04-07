@@ -588,6 +588,7 @@
   <Dialog
     onclose={closeOverride}
     class="dialog"
+    aria-modal="true"
     aria-labelledby="override-dialog-title"
   >
     <header class="dialog__header">
