@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Button, Input, Select, Dialog } from '@plures/design-dojo';
   import { getPluginContext } from '../lib/context.js';
   import {
     FA_ACCOUNTS_COLLECTION,
@@ -61,32 +62,6 @@
     } finally {
       loading = false;
     }
-  }
-
-  // ── Modal action — wires <dialog> to showModal() for native focus trapping,
-  //    backdrop, and Escape handling. Click on ::backdrop closes the dialog.
-  function useModal(node: HTMLDialogElement, params: { onClose: () => void }) {
-    function handleCancel(e: Event) {
-      // Prevent the browser from closing the dialog on its own so that Svelte
-      // state (the {#if} block) remains the single source of truth for visibility.
-      e.preventDefault();
-      params.onClose();
-    }
-    function handleBackdropClick(e: MouseEvent) {
-      // A click whose direct target is the <dialog> element itself means the
-      // user clicked on the ::backdrop (outside the dialog box).
-      if (e.target === node) params.onClose();
-    }
-    node.showModal();
-    node.addEventListener('cancel', handleCancel);
-    node.addEventListener('click', handleBackdropClick);
-    return {
-      destroy() {
-        node.removeEventListener('cancel', handleCancel);
-        node.removeEventListener('click', handleBackdropClick);
-        if (node.open) node.close();
-      },
-    };
   }
 
   // ── Form helpers ──────────────────────────────────────────────────────────
@@ -207,9 +182,9 @@
       {/if}
     </div>
     {#if accounts.length > 0}
-      <button class="btn btn--primary" onclick={openCreate} aria-label="Add account">
+      <Button class="btn btn--primary" onclick={openCreate} aria-label="Add account">
         + Add Account
-      </button>
+      </Button>
     {/if}
   </header>
 
@@ -230,9 +205,9 @@
         Add your first bank account, credit card, or investment account to
         start tracking your finances.
       </p>
-      <button class="btn btn--primary btn--lg" onclick={openCreate}>
+      <Button class="btn btn--primary btn--lg" onclick={openCreate}>
         Add Your First Account
-      </button>
+      </Button>
     </div>
 
   <!-- Account list -->
@@ -257,20 +232,20 @@
             {formatCurrency(account.balance)}
           </span>
           <div class="account-card__actions">
-            <button
+            <Button
               class="btn btn--ghost btn--sm"
               onclick={() => openEdit(account)}
               aria-label={`Edit ${account.name}`}
             >
               Edit
-            </button>
-            <button
+            </Button>
+            <Button
               class="btn btn--ghost btn--sm btn--danger"
               onclick={() => (confirmDeleteId = account.id)}
               aria-label={`Delete ${account.name}`}
             >
               Delete
-            </button>
+            </Button>
           </div>
         </li>
       {/each}
@@ -280,23 +255,22 @@
 
 <!-- ── Account form dialog ────────────────────────────────────────────────── -->
 {#if showForm}
-  <dialog
-    use:useModal={{ onClose: closeForm }}
+  <Dialog
+    onclose={closeForm}
     class="dialog"
-    aria-modal="true"
     aria-labelledby="dialog-title"
   >
     <header class="dialog__header">
       <h2 class="dialog__title" id="dialog-title">
         {isEditMode ? 'Edit Account' : 'Add Account'}
       </h2>
-      <button
+      <Button
         class="btn btn--ghost btn--icon"
         onclick={closeForm}
         aria-label="Close dialog"
       >
         ✕
-      </button>
+      </Button>
     </header>
 
     <form
@@ -317,7 +291,7 @@
         <label class="field__label" for="account-name">
           Account Name <span aria-hidden="true">*</span>
         </label>
-        <input
+        <Input
           id="account-name"
           class="field__input"
           type="text"
@@ -332,7 +306,7 @@
         <label class="field__label" for="account-institution">
           Institution
         </label>
-        <input
+        <Input
           id="account-institution"
           class="field__input"
           type="text"
@@ -346,12 +320,12 @@
         <label class="field__label" for="account-type">
           Account Type <span aria-hidden="true">*</span>
         </label>
-        <select id="account-type" class="field__select" bind:value={formType}>
+        <Select id="account-type" class="field__select" bind:value={formType}>
           <option value="checking">Checking</option>
           <option value="savings">Savings</option>
           <option value="credit">Credit Card</option>
           <option value="investment">Investment</option>
-        </select>
+        </Select>
       </div>
 
       <div class="field">
@@ -361,7 +335,7 @@
         </label>
         <div class="field__prefix-wrap">
           <span class="field__prefix" aria-hidden="true">$</span>
-          <input
+          <Input
             id="account-balance"
             class="field__input field__input--prefixed"
             type="number"
@@ -374,28 +348,27 @@
       </div>
 
       <footer class="dialog__footer">
-        <button
+        <Button
           class="btn btn--ghost"
           type="button"
           onclick={closeForm}
           disabled={saving}
         >
           Cancel
-        </button>
-        <button class="btn btn--primary" type="submit" disabled={saving}>
+        </Button>
+        <Button class="btn btn--primary" type="submit" disabled={saving}>
           {saving ? 'Saving…' : isEditMode ? 'Save Changes' : 'Add Account'}
-        </button>
+        </Button>
       </footer>
     </form>
-  </dialog>
+  </Dialog>
 {/if}
 
 <!-- ── Delete confirmation dialog ────────────────────────────────────────── -->
 {#if confirmDeleteId !== null}
-  <dialog
-    use:useModal={{ onClose: () => (confirmDeleteId = null) }}
+  <Dialog
+    onclose={() => (confirmDeleteId = null)}
     class="dialog dialog--sm"
-    aria-modal="true"
     aria-labelledby="confirm-title"
   >
     <header class="dialog__header">
@@ -409,13 +382,13 @@
       </p>
     </div>
     <footer class="dialog__footer">
-      <button
+      <Button
         class="btn btn--ghost"
         onclick={() => (confirmDeleteId = null)}
       >
         Cancel
-      </button>
-      <button
+      </Button>
+      <Button
         class="btn btn--danger"
         onclick={() => {
           if (confirmDeleteId) {
@@ -426,9 +399,9 @@
         }}
       >
         Delete
-      </button>
+      </Button>
     </footer>
-  </dialog>
+  </Dialog>
 {/if}
 
 <style>

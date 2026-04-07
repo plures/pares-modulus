@@ -14,7 +14,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "paths": {
-      "@plures/pares-radix": ["./types/pares-radix.d.ts"]
+      "@plures/pares-radix": ["./types/pares-radix.d.ts"],
+      "@plures/design-dojo": ["./types/design-dojo.d.ts"]
     }
   },
   "include": ["plugins/**/*.ts", "types/**/*.d.ts"],
