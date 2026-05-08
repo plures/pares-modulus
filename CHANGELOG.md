@@ -1,3 +1,9 @@
+## [0.3.0] — 2026-05-08
+
+- feat: vault plugin + eslint-plugin-plures enforcement + financial advisor migration (24c9d51)
+- docs: refresh ROADMAP.md with OASIS strategic alignment (3c0e5c5)
+- docs: update copilot-instructions with praxis, design-dojo, automation rules (aefabca)
+
 ## [0.2.0] — 2026-04-23
 
 - feat(release): add target_version input for milestone-driven releases (3fdae6d)
