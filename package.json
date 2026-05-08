@@ -30,7 +30,11 @@
     "tsx": "^4.0.0",
     "eslint": "^9.0.0",
     "@eslint/js": "^9.0.0",
-    "typescript-eslint": "^8.0.0"
+    "typescript-eslint": "^8.0.0",
+    "eslint-plugin-svelte": "^2.0.0",
+    "svelte-eslint-parser": "^0.43.0",
+    "globals": "^15.0.0",
+    "eslint-plugin-plures": "workspace:*"
   },
   "dependencies": {},
   "peerDependencies": {

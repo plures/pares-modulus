@@ -1,6 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Button, Input, Select, Table } from '@plures/design-dojo';
+  import {
+    Box,
+    Button,
+    Heading,
+    Input,
+    Link,
+    List,
+    ListItem,
+    Select,
+    Table,
+    Text,
+  } from '@plures/design-dojo';
   import { getPluginContext } from '../lib/context.js';
   import {
     FA_TRANSACTIONS_COLLECTION,
@@ -17,6 +28,7 @@
   let acctCollection: any;
 
   // ── Accounts ──────────────────────────────────────────────────────────────
+  // eslint-disable-next-line plures/no-raw-stores
   let accounts = $state<Account[]>([]);
   let selectedAccountId = $state('');
 
@@ -215,156 +227,161 @@
     };
     return labels[fmt] ?? fmt;
   }
+
+  // eslint-disable-next-line plures/no-raw-stores
+  const accountOptions = $derived(
+    accounts.map(account => ({
+      value: account.id,
+      label: `${account.name}${account.institution ? ` — ${account.institution}` : ''}`,
+    })),
+  );
 </script>
 
 <!-- ── Page ─────────────────────────────────────────────────────────────── -->
-<div class="import-page">
+<Box class="import-page">
   <!-- Header -->
-  <header class="page-header">
-    <div class="page-header__text">
-      <h1 class="page-header__title">Import Transactions</h1>
-      <p class="page-header__subtitle">
+  <Box as="header" class="page-header" direction="row" justify="space-between" align="flex-start">
+    <Box class="page-header__text" gap="0">
+      <Heading class="page-header__title" level={1}>Import Transactions</Heading>
+      <Text as="p" class="page-header__subtitle">
         Upload a CSV, OFX, or QFX export from your bank. Duplicate transactions are
         automatically skipped.
-      </p>
-    </div>
+      </Text>
+    </Box>
     {#if stage === 'preview' || stage === 'done'}
       <Button class="btn btn--ghost" onclick={resetImport}>
         ← Start Over
       </Button>
     {/if}
-  </header>
+  </Box>
 
   <!-- Account selector -->
   {#if accounts.length > 0 && stage !== 'done'}
-    <div class="account-selector">
-      <label class="field__label" for="target-account">Import into account</label>
+    <Box class="account-selector" gap="var(--space-2, 0.5rem)">
       <Select
-        id="target-account"
+        name="target-account"
         class="field__select"
         bind:value={selectedAccountId}
+        label="Import into account"
         disabled={stage === 'preview' || stage === 'committing'}
-      >
-        {#each accounts as account (account.id)}
-          <option value={account.id}>{account.name}{account.institution ? ` — ${account.institution}` : ''}</option>
-        {/each}
-      </Select>
-    </div>
+        options={accountOptions}
+      />
+    </Box>
   {/if}
 
   <!-- ── Idle / Drop zone ────────────────────────────────────────────────── -->
   {#if stage === 'idle'}
     {#if parseError}
-      <div class="alert alert--error" role="alert">{parseError}</div>
+      <Box class="alert alert--error" role="alert">{parseError}</Box>
     {/if}
 
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <label
+    <Box
+      as="label"
       class="drop-zone"
       class:drop-zone--over={isDragOver}
       ondrop={handleDrop}
       ondragover={handleDragOver}
       ondragleave={handleDragLeave}
       aria-label="Upload file — drag and drop or click to browse"
-      for="file-input"
     >
-      <span class="drop-zone__icon" aria-hidden="true">📥</span>
-      <span class="drop-zone__primary">
-        Drag &amp; drop a file here, or <span class="drop-zone__browse">browse</span>
-      </span>
-      <span class="drop-zone__secondary">Supports CSV, OFX, and QFX formats</span>
+      <Text class="drop-zone__icon" aria-hidden="true">📥</Text>
+      <Text class="drop-zone__primary">
+        Drag &amp; drop a file here, or <Text as="span" class="drop-zone__browse">browse</Text>
+      </Text>
+      <Text class="drop-zone__secondary">Supports CSV, OFX, and QFX formats</Text>
       <Input
-        id="file-input"
+        name="file-input"
         class="drop-zone__input"
         type="file"
         accept=".csv,.ofx,.qfx"
         onchange={handleFileInput}
         aria-hidden="true"
-        tabindex="-1"
       />
-    </label>
+    </Box>
 
-    <div class="format-hints">
-      <p class="format-hints__title">Supported bank formats</p>
-      <ul class="format-hints__list">
-        <li>🏦 <strong>Chase</strong> — CSV export from chase.com</li>
-        <li>🏦 <strong>Bank of America</strong> — CSV export</li>
-        <li>🏦 <strong>Wells Fargo</strong> — CSV export</li>
-        <li>📄 <strong>OFX / QFX</strong> — Any bank supporting Open Financial Exchange</li>
-      </ul>
-    </div>
+    <Box class="format-hints">
+      <Text as="p" class="format-hints__title">Supported bank formats</Text>
+      <List class="format-hints__list">
+        <ListItem>🏦 <Text as="strong">Chase</Text> — CSV export from chase.com</ListItem>
+        <ListItem>🏦 <Text as="strong">Bank of America</Text> — CSV export</ListItem>
+        <ListItem>🏦 <Text as="strong">Wells Fargo</Text> — CSV export</ListItem>
+        <ListItem>📄 <Text as="strong">OFX / QFX</Text> — Any bank supporting Open Financial Exchange</ListItem>
+      </List>
+    </Box>
   {/if}
 
   <!-- ── Parsing / progress ─────────────────────────────────────────────── -->
   {#if stage === 'parsing' || stage === 'committing'}
-    <div class="progress-container" role="status" aria-live="polite">
-      <p class="progress-label">
+    <Box class="progress-container" role="status" aria-live="polite">
+      <Text as="p" class="progress-label">
         {stage === 'parsing' ? 'Parsing file…' : `Saving transactions… (${progress}%)`}
-      </p>
-      <div class="progress-bar" aria-label="Progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-        <div class="progress-bar__fill" style="width: {progress}%"></div>
-      </div>
-    </div>
+      </Text>
+      <Box class="progress-bar" aria-label="Progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
+        <Box class="progress-bar__fill" style={`width: ${progress}%`} />
+      </Box>
+    </Box>
   {/if}
 
   <!-- ── Preview ────────────────────────────────────────────────────────── -->
   {#if stage === 'preview'}
-    <div class="preview-summary">
-      <div class="summary-chip summary-chip--new">
-        <span class="summary-chip__count">{newRows.length}</span>
-        new transaction{newRows.length === 1 ? '' : 's'}
-      </div>
+    <Box class="preview-summary" direction="row" wrap gap="var(--space-2, 0.5rem)">
+      <Box class="summary-chip summary-chip--new" direction="row" align="center" gap="var(--space-2, 0.5rem)">
+        <Text class="summary-chip__count">{newRows.length}</Text>
+        <Text>new transaction{newRows.length === 1 ? '' : 's'}</Text>
+      </Box>
       {#if dupRows.length > 0}
-        <div class="summary-chip summary-chip--dup">
-          <span class="summary-chip__count">{dupRows.length}</span>
-          duplicate{dupRows.length === 1 ? '' : 's'} (will be skipped)
-        </div>
+        <Box class="summary-chip summary-chip--dup" direction="row" align="center" gap="var(--space-2, 0.5rem)">
+          <Text class="summary-chip__count">{dupRows.length}</Text>
+          <Text>duplicate{dupRows.length === 1 ? '' : 's'} (will be skipped)</Text>
+        </Box>
       {/if}
       {#if detectedFormat}
-        <div class="summary-chip summary-chip--format">
+        <Box class="summary-chip summary-chip--format">
           {formatFormatLabel(String(detectedFormat))}
-        </div>
+        </Box>
       {/if}
-    </div>
+    </Box>
 
-    <div class="table-wrapper" role="region" aria-label="Transaction preview" tabindex="0">
+    <Box class="table-wrapper" role="region" aria-label="Transaction preview" tabindex="0">
       <Table class="preview-table" aria-label="Imported transactions preview">
-        <thead>
-          <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Description</th>
-            <th scope="col" class="col--amount">Amount</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
+        <Box as="thead">
+          <Box as="tr">
+            <Box as="th">Date</Box>
+            <Box as="th">Description</Box>
+            <Box as="th" class="col--amount">Amount</Box>
+            <Box as="th">Status</Box>
+          </Box>
+        </Box>
+        <Box as="tbody">
           {#each previewRows as row (row.id)}
-            <tr class:row--dup={row.duplicate}>
-              <td class="col--date">{row.date}</td>
-              <td class="col--desc">{row.description || '—'}</td>
-              <td
+            <Box as="tr" class:row--dup={row.duplicate}>
+              <Box as="td" class="col--date">{row.date}</Box>
+              <Box as="td" class="col--desc">{row.description || '—'}</Box>
+              <Box
+                as="td"
                 class="col--amount"
                 class:amount--negative={row.amount < 0}
                 class:amount--positive={row.amount > 0}
               >
                 {formatCurrency(row.amount)}
-              </td>
-              <td>
+              </Box>
+              <Box as="td">
                 {#if row.duplicate}
-                  <span class="badge badge--dup" aria-label="Duplicate — will be skipped">
+                  <Text class="badge badge--dup" aria-label="Duplicate — will be skipped">
                     Duplicate
-                  </span>
+                  </Text>
                 {:else}
-                  <span class="badge badge--new" aria-label="New transaction">New</span>
+                  <Text class="badge badge--new" aria-label="New transaction">New</Text>
                 {/if}
-              </td>
-            </tr>
+              </Box>
+            </Box>
           {/each}
-        </tbody>
+        </Box>
       </Table>
-    </div>
+    </Box>
 
-    <footer class="preview-footer">
+    <Box as="footer" class="preview-footer" direction="row" justify="space-between" align="center">
       <Button class="btn btn--ghost" onclick={resetImport} disabled={stage !== 'preview'}>
         Cancel
       </Button>
@@ -378,32 +395,32 @@
       >
         Import {newRows.length} Transaction{newRows.length === 1 ? '' : 's'}
       </Button>
-    </footer>
+    </Box>
   {/if}
 
   <!-- ── Done ───────────────────────────────────────────────────────────── -->
   {#if stage === 'done'}
-    <div class="done-state" role="status">
-      <span class="done-state__icon" aria-hidden="true">✅</span>
-      <h2 class="done-state__heading">Import Complete</h2>
-      <p class="done-state__body">
+    <Box class="done-state" role="status" align="center" gap="var(--space-3, 0.75rem)">
+      <Text class="done-state__icon" aria-hidden="true">✅</Text>
+      <Heading class="done-state__heading" level={2}>Import Complete</Heading>
+      <Text as="p" class="done-state__body">
         {newRows.length} transaction{newRows.length === 1 ? '' : 's'} saved to
-        <strong>{accounts.find(a => a.id === selectedAccountId)?.name ?? 'your account'}</strong>.
+        <Text as="strong">{accounts.find(a => a.id === selectedAccountId)?.name ?? 'your account'}</Text>.
         {#if dupRows.length > 0}
           {dupRows.length} duplicate{dupRows.length === 1 ? '' : 's'} were skipped.
         {/if}
-      </p>
-      <div class="done-state__actions">
-        <a class="btn btn--primary" href="/financial-advisor/transactions">
+      </Text>
+      <Box class="done-state__actions" direction="row" gap="var(--space-2, 0.5rem)" justify="center" wrap>
+        <Link class="btn btn--primary" href="/financial-advisor/transactions">
           View Transactions
-        </a>
+        </Link>
         <Button class="btn btn--ghost" onclick={resetImport}>
           Import Another File
         </Button>
-      </div>
-    </div>
+      </Box>
+    </Box>
   {/if}
-</div>
+</Box>
 
 <style>
   /* ── Layout ──────────────────────────────────────────────────────────────── */
@@ -457,32 +474,27 @@
     padding: var(--space-12, 3rem) var(--space-6, 1.5rem);
     border: 2px dashed var(--color-border, #d1d5db);
     border-radius: var(--radius-xl, 1rem);
-    background: var(--color-surface, #ffffff);
-    cursor: pointer;
     text-align: center;
+    cursor: pointer;
     transition: border-color 0.15s ease, background 0.15s ease;
   }
 
-  .drop-zone:hover,
   .drop-zone--over {
-    border-color: var(--color-primary, #2563eb);
-    background: var(--color-primary-soft, #eff6ff);
+    border-color: var(--color-primary, #6366f1);
+    background: var(--color-surface-2, #f3f4f6);
   }
 
   .drop-zone__icon {
     font-size: 2.5rem;
-    line-height: 1;
   }
 
   .drop-zone__primary {
-    font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--color-text, #111827);
   }
 
   .drop-zone__browse {
-    color: var(--color-primary, #2563eb);
-    text-decoration: underline;
+    color: var(--color-primary, #6366f1);
   }
 
   .drop-zone__secondary {
@@ -491,75 +503,54 @@
   }
 
   .drop-zone__input {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
+  }
+
+  /* ── Alerts ─────────────────────────────────────────────────────────────── */
+  .alert {
+    padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+    border-radius: var(--radius-md, 0.5rem);
+    font-size: 0.875rem;
+  }
+
+  .alert--error {
+    background: var(--color-danger-subtle, #fef2f2);
+    color: var(--color-danger, #dc2626);
+    border: 1px solid var(--color-danger-border, #fecaca);
   }
 
   /* ── Format hints ────────────────────────────────────────────────────────── */
   .format-hints {
-    background: var(--color-surface-2, #f9fafb);
-    border: 1px solid var(--color-border, #e5e7eb);
-    border-radius: var(--radius-lg, 0.75rem);
-    padding: var(--space-5, 1.25rem);
+    margin-top: var(--space-4, 1rem);
   }
 
   .format-hints__title {
-    font-size: 0.875rem;
     font-weight: 600;
-    color: var(--color-text-muted, #6b7280);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 0 0 var(--space-3, 0.75rem);
+    margin: 0 0 var(--space-2, 0.5rem) 0;
   }
 
   .format-hints__list {
-    list-style: none;
     margin: 0;
-    padding: 0;
+    padding-left: 1.25rem;
     display: flex;
     flex-direction: column;
-    gap: var(--space-2, 0.5rem);
-    font-size: 0.9375rem;
-    color: var(--color-text, #111827);
-  }
-
-  /* ── Alert ───────────────────────────────────────────────────────────────── */
-  .alert {
-    padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
-    border-radius: var(--radius-md, 0.5rem);
-    font-size: 0.9375rem;
-  }
-
-  .alert--error {
-    background: var(--color-danger-soft, #fef2f2);
-    color: var(--color-danger, #dc2626);
-    border: 1px solid var(--color-danger-border, #fca5a5);
+    gap: var(--space-1, 0.25rem);
   }
 
   /* ── Progress ────────────────────────────────────────────────────────────── */
   .progress-container {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3, 0.75rem);
-    padding: var(--space-8, 2rem);
-    background: var(--color-surface, #ffffff);
-    border: 1px solid var(--color-border, #e5e7eb);
-    border-radius: var(--radius-lg, 0.75rem);
-    align-items: center;
+    gap: var(--space-2, 0.5rem);
   }
 
   .progress-label {
-    font-size: 0.9375rem;
-    color: var(--color-text-muted, #6b7280);
     margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-text-muted, #6b7280);
   }
 
   .progress-bar {
-    width: 100%;
-    max-width: 24rem;
     height: 0.5rem;
     background: var(--color-surface-2, #f3f4f6);
     border-radius: var(--radius-full, 9999px);
@@ -568,37 +559,39 @@
 
   .progress-bar__fill {
     height: 100%;
-    background: var(--color-primary, #2563eb);
-    border-radius: var(--radius-full, 9999px);
+    background: var(--color-primary, #6366f1);
     transition: width 0.2s ease;
   }
 
-  /* ── Preview summary chips ───────────────────────────────────────────────── */
+  /* ── Preview summary ─────────────────────────────────────────────────────── */
   .preview-summary {
     display: flex;
+    gap: var(--space-2, 0.5rem);
     flex-wrap: wrap;
-    gap: var(--space-3, 0.75rem);
-    align-items: center;
   }
 
   .summary-chip {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2, 0.5rem);
-    padding: var(--space-1, 0.25rem) var(--space-3, 0.75rem);
+    padding: 0.25rem 0.75rem;
     border-radius: var(--radius-full, 9999px);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
   }
 
+  .summary-chip__count {
+    font-weight: 700;
+  }
+
   .summary-chip--new {
-    background: var(--color-success-soft, #f0fdf4);
+    background: var(--color-success-subtle, #f0fdf4);
     color: var(--color-success, #16a34a);
     border: 1px solid var(--color-success-border, #bbf7d0);
   }
 
   .summary-chip--dup {
-    background: var(--color-warning-soft, #fffbeb);
+    background: var(--color-warning-subtle, #fffbeb);
     color: var(--color-warning, #d97706);
     border: 1px solid var(--color-warning-border, #fde68a);
   }
@@ -606,213 +599,148 @@
   .summary-chip--format {
     background: var(--color-surface-2, #f3f4f6);
     color: var(--color-text-muted, #6b7280);
-    border: 1px solid var(--color-border, #e5e7eb);
   }
 
-  .summary-chip__count {
-    font-size: 1rem;
-    font-weight: 700;
-  }
-
-  /* ── Preview table ───────────────────────────────────────────────────────── */
+  /* ── Table ──────────────────────────────────────────────────────────────── */
   .table-wrapper {
     overflow-x: auto;
     border: 1px solid var(--color-border, #e5e7eb);
     border-radius: var(--radius-lg, 0.75rem);
-    max-height: 28rem;
-    overflow-y: auto;
   }
 
-  .preview-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9375rem;
-  }
-
-  .preview-table thead {
-    position: sticky;
-    top: 0;
-    background: var(--color-surface-2, #f9fafb);
-    z-index: 1;
-  }
-
-  .preview-table th {
-    padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  .preview-table :global(th) {
     text-align: left;
-    font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--color-text-muted, #6b7280);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    border-bottom: 1px solid var(--color-border, #e5e7eb);
-    white-space: nowrap;
+    padding: 0.75rem 1rem;
+    background: var(--color-surface-2, #f3f4f6);
   }
 
-  .preview-table td {
-    padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
-    border-bottom: 1px solid var(--color-border-subtle, #f3f4f6);
-    vertical-align: middle;
-  }
-
-  .preview-table tr:last-child td {
-    border-bottom: none;
-  }
-
-  .row--dup {
-    opacity: 0.5;
-  }
-
-  .col--date {
-    white-space: nowrap;
-    color: var(--color-text-muted, #6b7280);
+  .preview-table :global(td) {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--color-border, #e5e7eb);
     font-size: 0.875rem;
-    width: 7rem;
-  }
-
-  .col--desc {
-    max-width: 20rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--color-text, #111827);
   }
 
   .col--amount {
     text-align: right;
     white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-    font-weight: 500;
   }
 
-  .amount--negative {
-    color: var(--color-danger, #dc2626);
+  .col--date {
+    white-space: nowrap;
+  }
+
+  .row--dup {
+    opacity: 0.6;
   }
 
   .amount--positive {
     color: var(--color-success, #16a34a);
   }
 
-  /* ── Badges ──────────────────────────────────────────────────────────────── */
+  .amount--negative {
+    color: var(--color-danger, #dc2626);
+  }
+
   .badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.125rem var(--space-2, 0.5rem);
+    padding: 0.125rem 0.5rem;
     border-radius: var(--radius-full, 9999px);
     font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
+    font-weight: 500;
   }
 
   .badge--new {
-    background: var(--color-success-soft, #f0fdf4);
+    background: var(--color-success-subtle, #f0fdf4);
     color: var(--color-success, #16a34a);
   }
 
   .badge--dup {
-    background: var(--color-warning-soft, #fffbeb);
+    background: var(--color-warning-subtle, #fffbeb);
     color: var(--color-warning, #d97706);
   }
 
-  /* ── Preview footer ──────────────────────────────────────────────────────── */
+  /* ── Preview footer ─────────────────────────────────────────────────────── */
   .preview-footer {
     display: flex;
     justify-content: flex-end;
-    gap: var(--space-3, 0.75rem);
+    gap: var(--space-2, 0.5rem);
   }
 
-  /* ── Done state ──────────────────────────────────────────────────────────── */
+  /* ── Done state ─────────────────────────────────────────────────────────── */
   .done-state {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: var(--space-16, 4rem) var(--space-6, 1.5rem);
-    gap: var(--space-4, 1rem);
+    gap: var(--space-3, 0.75rem);
+    padding: var(--space-8, 2rem) var(--space-4, 1rem);
   }
 
   .done-state__icon {
-    font-size: 3rem;
-    line-height: 1;
+    font-size: 2.5rem;
   }
 
   .done-state__heading {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: 1.5rem;
     margin: 0;
-    color: var(--color-text, #111827);
   }
 
   .done-state__body {
     font-size: 0.9375rem;
     color: var(--color-text-muted, #6b7280);
-    max-width: 28rem;
-    margin: 0;
     line-height: 1.6;
+    margin: 0;
+    max-width: 36rem;
   }
 
   .done-state__actions {
     display: flex;
-    gap: var(--space-3, 0.75rem);
+    gap: var(--space-2, 0.5rem);
     flex-wrap: wrap;
     justify-content: center;
   }
 
-  /* ── Shared field styles (mirrors Accounts.svelte) ───────────────────────── */
-  :global(.field__label) {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--color-text, #111827);
-  }
-
-  :global(.field__select) {
-    width: 100%;
-    padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);
-    border: 1px solid var(--color-border, #d1d5db);
-    border-radius: var(--radius-md, 0.5rem);
-    background: var(--color-surface, #ffffff);
-    color: var(--color-text, #111827);
-    font-size: 0.9375rem;
-    appearance: auto;
-  }
-
-  :global(.btn) {
+  /* ── Buttons ─────────────────────────────────────────────────────────────── */
+  .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-2, 0.5rem);
     padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
-    border-radius: var(--radius-md, 0.5rem);
     font-size: 0.9375rem;
     font-weight: 500;
-    cursor: pointer;
+    border-radius: var(--radius-md, 0.5rem);
     border: 1px solid transparent;
-    transition: background 0.15s ease, opacity 0.15s ease;
-    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+    white-space: nowrap;
   }
 
-  :global(.btn:disabled),
-  :global(.btn[aria-disabled='true']) {
+  .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  :global(.btn--primary) {
-    background: var(--color-primary, #2563eb);
-    color: #fff;
+  .btn--primary {
+    background: var(--color-primary, #6366f1);
+    color: #ffffff;
+    border-color: var(--color-primary, #6366f1);
   }
 
-  :global(.btn--primary:hover:not(:disabled)) {
-    background: var(--color-primary-hover, #1d4ed8);
+  .btn--primary:hover:not(:disabled) {
+    background: var(--color-primary-hover, #4f46e5);
+    border-color: var(--color-primary-hover, #4f46e5);
   }
 
-  :global(.btn--ghost) {
+  .btn--ghost {
     background: transparent;
     color: var(--color-text, #111827);
     border-color: var(--color-border, #d1d5db);
   }
 
-  :global(.btn--ghost:hover:not(:disabled)) {
+  .btn--ghost:hover:not(:disabled) {
     background: var(--color-surface-2, #f3f4f6);
   }
 </style>
