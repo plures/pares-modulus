@@ -1,3 +1,7 @@
+## [0.4.0] — 2026-05-08
+
+- feat: agent console (chat) plugin — AI conversation interface (3820dc2)
+
 ## [0.3.0] — 2026-05-08
 
 - feat: vault plugin + eslint-plugin-plures enforcement + financial advisor migration (24c9d51)
