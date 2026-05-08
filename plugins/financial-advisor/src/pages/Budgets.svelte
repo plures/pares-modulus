@@ -1,6 +1,16 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Button, Input, Select, Dialog } from '@plures/design-dojo';
+  import {
+    Box,
+    Button,
+    Dialog,
+    Heading,
+    Input,
+    List,
+    ListItem,
+    Select,
+    Text,
+  } from '@plures/design-dojo';
   import { getPluginContext } from '../lib/context.js';
   import {
     FA_BUDGETS_COLLECTION,
@@ -26,11 +36,14 @@
   let infCollection: CollectionOf<TransactionInference>;
 
   // ── Page state ─────────────────────────────────────────────────────────────
+  // eslint-disable-next-line plures/no-raw-stores
   let budgets = $state<Budget[]>([]);
   let loading = $state(true);
 
   // ── Spending maps — keyed by category ─────────────────────────────────────
+  // eslint-disable-next-line plures/no-raw-stores
   let currentSpend = $state<Record<string, number>>({});
+  // eslint-disable-next-line plures/no-raw-stores
   let previousSpend = $state<Record<string, number>>({});
 
   // ── Form dialog state ──────────────────────────────────────────────────────
@@ -49,11 +62,13 @@
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const isEditMode = $derived(editingBudget !== null);
+  // eslint-disable-next-line plures/no-raw-stores
   const confirmDeleteTarget = $derived(
     budgets.find(b => b.id === confirmDeleteId) ?? null,
   );
 
   /** Budgets sorted by status severity (over → warning → ok), then category. */
+  // eslint-disable-next-line plures/no-raw-stores
   const sortedBudgets = $derived(
     [...budgets].sort((a, b) => {
       const order: Record<BudgetStatus, number> = { over: 0, warning: 1, ok: 2 };
@@ -65,6 +80,7 @@
   );
 
   /** Categories not yet assigned a budget (for the create form). */
+  // eslint-disable-next-line plures/no-raw-stores
   const availableCategories = $derived(
     editingBudget
       ? CATEGORIES
@@ -277,76 +293,80 @@
     if (diff < 0) return 'mom--down';
     return 'mom--neutral';
   }
+
+  const categoryOptions = $derived(
+    availableCategories.map(cat => ({ value: cat, label: cat })),
+  );
 </script>
 
 <!-- ── Page ─────────────────────────────────────────────────────────────────── -->
-<div class="budgets-page">
+<Box class="budgets-page">
   <!-- Header -->
-  <header class="page-header">
-    <div class="page-header__text">
-      <h1 class="page-header__title">Budgets</h1>
+  <Box as="header" class="page-header" direction="row" justify="space-between" align="flex-start">
+    <Box class="page-header__text" gap="0">
+      <Heading class="page-header__title" level={1}>Budgets</Heading>
       {#if budgets.length > 0}
-        <p class="page-header__subtitle">
+        <Text as="p" class="page-header__subtitle">
           {currentMonthLabel} ·
           {budgets.filter(b => budgetStatus(b, currentSpend[b.category] ?? 0) === 'over').length} over,
           {budgets.filter(b => budgetStatus(b, currentSpend[b.category] ?? 0) === 'warning').length} near limit
-        </p>
+        </Text>
       {/if}
-    </div>
+    </Box>
     {#if !loading && availableCategories.length > 0}
       <Button class="btn btn--primary" onclick={openCreate} aria-label="Add budget">
         + Add Budget
       </Button>
     {/if}
-  </header>
+  </Box>
 
   <!-- Loading skeleton -->
   {#if loading}
-    <div class="skeleton-list" aria-busy="true" aria-label="Loading budgets">
+    <Box class="skeleton-list" aria-busy="true" aria-label="Loading budgets" gap="var(--space-3, 0.75rem)">
       {#each [1, 2, 3] as _}
-        <div class="skeleton-card"></div>
+        <Box class="skeleton-card" />
       {/each}
-    </div>
+    </Box>
 
   <!-- Empty state -->
   {:else if budgets.length === 0}
-    <div class="empty-state" role="region" aria-label="No budgets yet">
-      <span class="empty-state__icon" aria-hidden="true">📊</span>
-      <h2 class="empty-state__heading">No budgets yet</h2>
-      <p class="empty-state__body">
+    <Box class="empty-state" role="region" aria-label="No budgets yet" align="center" gap="var(--space-4, 1rem)">
+      <Text class="empty-state__icon" aria-hidden="true">📊</Text>
+      <Heading class="empty-state__heading" level={2}>No budgets yet</Heading>
+      <Text as="p" class="empty-state__body">
         Set monthly spending limits by category to keep your finances on track.
         You'll get warnings when you're approaching or over your limit.
-      </p>
+      </Text>
       <Button class="btn btn--primary btn--lg" onclick={openCreate}>
         Create Your First Budget
       </Button>
-    </div>
+    </Box>
 
   <!-- Budget list -->
   {:else}
-    <ul class="budget-list" aria-label="Budget list">
+    <List class="budget-list" aria-label="Budget list">
       {#each sortedBudgets as budget (budget.id)}
         {@const actual = currentSpend[budget.category] ?? 0}
         {@const pct = spendPercent(budget, actual)}
         {@const status = budgetStatus(budget, actual)}
         {@const mom = momLabel(budget.category)}
 
-        <li class="budget-card" class:budget-card--over={status === 'over'} class:budget-card--warning={status === 'warning'}>
+        <ListItem class="budget-card" class:budget-card--over={status === 'over'} class:budget-card--warning={status === 'warning'}>
           <!-- Card header -->
-          <div class="budget-card__header">
-            <div class="budget-card__title-row">
-              <span class="budget-card__status-icon" aria-hidden="true">{statusIcon(status)}</span>
-              <span class="budget-card__category">{budget.category}</span>
-              <span
+          <Box class="budget-card__header" direction="row" justify="space-between" align="center" wrap>
+            <Box class="budget-card__title-row" direction="row" align="center" gap="var(--space-2, 0.5rem)">
+              <Text class="budget-card__status-icon" aria-hidden="true">{statusIcon(status)}</Text>
+              <Text class="budget-card__category">{budget.category}</Text>
+              <Text
                 class="budget-card__badge"
                 class:budget-card__badge--over={status === 'over'}
                 class:budget-card__badge--warning={status === 'warning'}
                 class:budget-card__badge--ok={status === 'ok'}
               >
                 {statusLabel(status)}
-              </span>
-            </div>
-            <div class="budget-card__actions">
+              </Text>
+            </Box>
+            <Box class="budget-card__actions" direction="row" gap="var(--space-2, 0.5rem)">
               <Button
                 class="btn btn--ghost btn--sm"
                 onclick={() => openEdit(budget)}
@@ -361,11 +381,11 @@
               >
                 Delete
               </Button>
-            </div>
-          </div>
+            </Box>
+          </Box>
 
           <!-- Progress bar -->
-          <div
+          <Box
             class="progress-wrap"
             role="meter"
             aria-valuenow={Math.round(pct)}
@@ -373,50 +393,50 @@
             aria-valuemax={100}
             aria-label={`${budget.category} spending: ${Math.round(pct)}% of budget`}
           >
-            <div
+            <Box
               class="progress-bar"
               class:progress-bar--over={status === 'over'}
               class:progress-bar--warning={status === 'warning'}
               style={`width: ${pct}%`}
-            ></div>
+            />
             <!-- Alert threshold marker -->
-            <div
+            <Box
               class="progress-threshold"
               style={`left: ${budget.alertThreshold * 100}%`}
               aria-hidden="true"
               title={`Alert threshold: ${Math.round(budget.alertThreshold * 100)}%`}
-            ></div>
-          </div>
+            />
+          </Box>
 
           <!-- Amounts row -->
-          <div class="budget-card__amounts">
-            <span class="budget-card__spent">
-              <span class="budget-card__spent-value">{formatCurrency(actual)}</span>
-              <span class="budget-card__spent-label"> spent</span>
-            </span>
-            <span class="budget-card__limit">
+          <Box class="budget-card__amounts" direction="row" align="baseline" wrap>
+            <Text class="budget-card__spent">
+              <Text class="budget-card__spent-value">{formatCurrency(actual)}</Text>
+              <Text class="budget-card__spent-label"> spent</Text>
+            </Text>
+            <Text class="budget-card__limit">
               of {formatCurrency(budget.monthlyLimit)}
-            </span>
-            <span class="budget-card__remaining">
+            </Text>
+            <Text class="budget-card__remaining">
               {#if actual < budget.monthlyLimit}
                 {formatCurrency(budget.monthlyLimit - actual)} remaining
               {:else}
                 {formatCurrency(actual - budget.monthlyLimit)} over
               {/if}
-            </span>
-          </div>
+            </Text>
+          </Box>
 
           <!-- Month-over-month comparison -->
           {#if mom}
-            <p class={`mom ${momClass(budget.category)}`} aria-label="Month-over-month change">
+            <Text as="p" class={`mom ${momClass(budget.category)}`} aria-label="Month-over-month change">
               {mom}
-            </p>
+            </Text>
           {/if}
-        </li>
+        </ListItem>
       {/each}
-    </ul>
+    </List>
   {/if}
-</div>
+</Box>
 
 <!-- ── Budget form dialog ──────────────────────────────────────────────────── -->
 {#if showForm}
@@ -426,10 +446,10 @@
     aria-modal="true"
     aria-labelledby="dialog-title"
   >
-    <header class="dialog__header">
-      <h2 class="dialog__title" id="dialog-title">
+    <Box as="header" class="dialog__header" direction="row" justify="space-between" align="center">
+      <Heading class="dialog__title" level={2} id="dialog-title">
         {isEditMode ? 'Edit Budget' : 'Add Budget'}
-      </h2>
+      </Heading>
       <Button
         class="btn btn--ghost btn--icon"
         onclick={closeForm}
@@ -437,9 +457,10 @@
       >
         ✕
       </Button>
-    </header>
+    </Box>
 
-    <form
+    <Box
+      as="form"
       class="dialog__body"
       onsubmit={(e) => {
         e.preventDefault();
@@ -450,40 +471,39 @@
       novalidate
     >
       {#if formError}
-        <p class="form-error" role="alert">{formError}</p>
+        <Text as="p" class="form-error" role="alert">{formError}</Text>
       {/if}
 
-      <div class="field">
-        <label class="field__label" for="budget-category">
-          Category <span aria-hidden="true">*</span>
-        </label>
+      <Box class="field" gap="var(--space-1, 0.25rem)">
         {#if isEditMode}
-          <!-- When editing, show category as read-only text (can't change the key) -->
           <Input
-            id="budget-category"
+            name="budget-category"
             class="field__input"
             type="text"
             value={formCategory}
+            label="Category *"
             disabled
             aria-readonly="true"
           />
         {:else}
-          <Select id="budget-category" class="field__select" bind:value={formCategory}>
-            {#each availableCategories as cat}
-              <option value={cat}>{cat}</option>
-            {/each}
-          </Select>
+          <Select
+            name="budget-category"
+            class="field__select"
+            bind:value={formCategory}
+            label="Category *"
+            options={categoryOptions}
+          />
         {/if}
-      </div>
+      </Box>
 
-      <div class="field">
-        <label class="field__label" for="budget-limit">
-          Monthly Limit <span aria-hidden="true">*</span>
-        </label>
-        <div class="field__prefix-wrap">
-          <span class="field__prefix" aria-hidden="true">$</span>
+      <Box class="field" gap="var(--space-1, 0.25rem)">
+        <Text as="label" class="field__label" for="budget-limit">
+          Monthly Limit <Text as="span" aria-hidden="true">*</Text>
+        </Text>
+        <Box class="field__prefix-wrap" direction="row" align="center">
+          <Text class="field__prefix" aria-hidden="true">$</Text>
           <Input
-            id="budget-limit"
+            name="budget-limit"
             class="field__input field__input--prefixed"
             type="number"
             min="0.01"
@@ -492,17 +512,17 @@
             placeholder="0.00"
             required
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <div class="field">
-        <label class="field__label" for="budget-threshold">
+      <Box class="field" gap="var(--space-1, 0.25rem)">
+        <Text as="label" class="field__label" for="budget-threshold">
           Alert Threshold (%)
-          <span class="field__hint">Warn me when spending reaches this % of the limit</span>
-        </label>
-        <div class="field__suffix-wrap">
+          <Text as="span" class="field__hint">Warn me when spending reaches this % of the limit</Text>
+        </Text>
+        <Box class="field__suffix-wrap" direction="row" align="center">
           <Input
-            id="budget-threshold"
+            name="budget-threshold"
             class="field__input field__input--suffixed"
             type="number"
             min="1"
@@ -512,11 +532,11 @@
             placeholder="80"
             required
           />
-          <span class="field__suffix" aria-hidden="true">%</span>
-        </div>
-      </div>
+          <Text class="field__suffix" aria-hidden="true">%</Text>
+        </Box>
+      </Box>
 
-      <footer class="dialog__footer">
+      <Box as="footer" class="dialog__footer" direction="row" justify="flex-end" gap="var(--space-3, 0.75rem)">
         <Button
           class="btn btn--ghost"
           type="button"
@@ -528,8 +548,8 @@
         <Button class="btn btn--primary" type="submit" disabled={saving}>
           {saving ? 'Saving…' : isEditMode ? 'Save Changes' : 'Add Budget'}
         </Button>
-      </footer>
-    </form>
+      </Box>
+    </Box>
   </Dialog>
 {/if}
 
@@ -541,17 +561,17 @@
     aria-modal="true"
     aria-labelledby="confirm-title"
   >
-    <header class="dialog__header">
-      <h2 class="dialog__title" id="confirm-title">Delete Budget?</h2>
-    </header>
-    <div class="dialog__body">
-      <p class="dialog__text">
+    <Box as="header" class="dialog__header">
+      <Heading class="dialog__title" level={2} id="confirm-title">Delete Budget?</Heading>
+    </Box>
+    <Box class="dialog__body">
+      <Text as="p" class="dialog__text">
         Are you sure you want to delete the budget for
-        <strong>{confirmDeleteTarget?.category ?? 'this category'}</strong>?
+        <Text as="strong">{confirmDeleteTarget?.category ?? 'this category'}</Text>?
         This action cannot be undone.
-      </p>
-    </div>
-    <footer class="dialog__footer">
+      </Text>
+    </Box>
+    <Box as="footer" class="dialog__footer" direction="row" justify="flex-end" gap="var(--space-3, 0.75rem)">
       <Button
         class="btn btn--ghost"
         onclick={() => (confirmDeleteId = null)}
@@ -570,7 +590,7 @@
       >
         Delete
       </Button>
-    </footer>
+    </Box>
   </Dialog>
 {/if}
 

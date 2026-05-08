@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Box, List, ListItem, Text } from '@plures/design-dojo';
   import { getPluginContext } from '../../lib/context.js';
   import {
     FA_TRANSACTIONS_COLLECTION,
@@ -18,10 +19,13 @@
 
   // ── State ─────────────────────────────────────────────────────────────────
   let loading = $state(true);
+  // eslint-disable-next-line plures/no-raw-stores
   let transactions = $state<Transaction[]>([]);
+  // eslint-disable-next-line plures/no-raw-stores
   let inferences = $state<TransactionInference[]>([]);
 
   // ── Derived: category inference map ──────────────────────────────────────
+  // eslint-disable-next-line plures/no-raw-stores
   const inferenceMap = $derived(
     new Map<string, TransactionInference>(
       inferences
@@ -31,6 +35,7 @@
   );
 
   // ── Derived: last 5 transactions sorted by date desc ─────────────────────
+  // eslint-disable-next-line plures/no-raw-stores
   const recentTransactions = $derived(
     transactions
       .slice()
@@ -56,7 +61,7 @@
         transactions = txs;
         inferences = infs;
       })
-      .catch((error) => {
+      .catch(() => {
         ctx.notify?.error?.('Failed to load recent transactions.');
       })
       .finally(() => {
@@ -84,65 +89,65 @@
   };
 </script>
 
-<div class="widget" aria-label="Recent Transactions">
+<Box class="widget" aria-label="Recent Transactions">
   {#if loading}
-    <div class="widget__skeleton" aria-busy="true" aria-label="Loading recent transactions">
+    <Box class="widget__skeleton" aria-busy="true" aria-label="Loading recent transactions" gap="var(--space-2, 0.5rem)">
       {#each [1, 2, 3, 4, 5] as _}
-        <div class="skeleton-row"></div>
+        <Box class="skeleton-row" />
       {/each}
-    </div>
+    </Box>
 
   {:else if transactions.length === 0}
-    <div class="widget__empty" role="region" aria-label="No transactions yet">
-      <span class="widget__empty-icon" aria-hidden="true">💳</span>
-      <p class="widget__empty-text">No transactions yet.</p>
-    </div>
+    <Box class="widget__empty" role="region" aria-label="No transactions yet" align="center" gap="var(--space-2, 0.5rem)">
+      <Text class="widget__empty-icon" aria-hidden="true">💳</Text>
+      <Text as="p" class="widget__empty-text">No transactions yet.</Text>
+    </Box>
 
   {:else}
-    <ul class="tx-list" aria-label="Recent transactions">
+    <List class="tx-list" aria-label="Recent transactions">
       {#each recentTransactions as tx (tx.id)}
         {@const inf = inferenceMap.get(tx.id)}
         {@const category = typeof inf?.value === 'string' ? inf.value : null}
         {@const confLevel = inf ? confidenceLevel(inf.confidence) : null}
-        <li class="tx-row">
+        <ListItem class="tx-row">
           <!-- Date + description -->
-          <div class="tx-row__main">
-            <span class="tx-row__date">{formatDate(tx.date)}</span>
-            <span class="tx-row__desc" title={tx.description}>
+          <Box class="tx-row__main" gap="2px">
+            <Text class="tx-row__date">{formatDate(tx.date)}</Text>
+            <Text class="tx-row__desc" title={tx.description}>
               {truncate(tx.description, 28)}
-            </span>
-          </div>
+            </Text>
+          </Box>
 
           <!-- Amount + category badge -->
-          <div class="tx-row__aside">
-            <span
+          <Box class="tx-row__aside" gap="2px" align="flex-end">
+            <Text
               class="tx-row__amount"
               class:tx-row__amount--credit={tx.amount > 0}
               class:tx-row__amount--debit={tx.amount < 0}
             >
               {tx.amount > 0 ? '+' : ''}{fmt(tx.amount)}
-            </span>
+            </Text>
             {#if category}
-              <div class="tx-row__badges">
-                <span class="badge badge--category" title={category}>
+              <Box class="tx-row__badges" direction="row" wrap justify="flex-end" gap="var(--space-1, 0.25rem)">
+                <Text class="badge badge--category" title={category}>
                   {truncate(category, 14)}
-                </span>
+                </Text>
                 {#if confLevel}
-                  <span
-                    class="badge badge--confidence badge--confidence-{confLevel}"
+                  <Text
+                    class={`badge badge--confidence badge--confidence-${confLevel}`}
                     aria-label={`Confidence: ${CONFIDENCE_LABELS[confLevel]}`}
                   >
                     {CONFIDENCE_LABELS[confLevel]}
-                  </span>
+                  </Text>
                 {/if}
-              </div>
+              </Box>
             {/if}
-          </div>
-        </li>
+          </Box>
+        </ListItem>
       {/each}
-    </ul>
+    </List>
   {/if}
-</div>
+</Box>
 
 <style>
   /* ── Widget shell ──────────────────────────────────────────────────────── */

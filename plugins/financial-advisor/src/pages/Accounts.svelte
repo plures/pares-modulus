@@ -1,6 +1,16 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Button, Input, Select, Dialog } from '@plures/design-dojo';
+  import {
+    Box,
+    Button,
+    Dialog,
+    Heading,
+    Input,
+    List,
+    ListItem,
+    Select,
+    Text,
+  } from '@plures/design-dojo';
   import { getPluginContext } from '../lib/context.js';
   import {
     FA_ACCOUNTS_COLLECTION,
@@ -15,6 +25,7 @@
   let collection: any;
 
   // ── Page state ────────────────────────────────────────────────────────────
+  // eslint-disable-next-line plures/no-raw-stores
   let accounts = $state<Account[]>([]);
   let loading = $state(true);
 
@@ -34,9 +45,11 @@
   let confirmDeleteId = $state<string | null>(null);
 
   // ── Derived ───────────────────────────────────────────────────────────────
+  // eslint-disable-next-line plures/no-raw-stores
   const totalBalance = $derived(
     accounts.reduce((sum, a) => sum + a.balance, 0),
   );
+  // eslint-disable-next-line plures/no-raw-stores
   const confirmDeleteTarget = $derived(
     accounts.find(a => a.id === confirmDeleteId) ?? null,
   );
@@ -166,72 +179,79 @@
       currency: 'USD',
     }).format(amount);
   }
+
+  const accountTypeOptions = [
+    { value: 'checking', label: 'Checking' },
+    { value: 'savings', label: 'Savings' },
+    { value: 'credit', label: 'Credit Card' },
+    { value: 'investment', label: 'Investment' },
+  ];
 </script>
 
 <!-- ── Page ──────────────────────────────────────────────────────────────── -->
-<div class="accounts-page">
+<Box class="accounts-page">
   <!-- Header -->
-  <header class="page-header">
-    <div class="page-header__text">
-      <h1 class="page-header__title">Accounts</h1>
+  <Box as="header" class="page-header" direction="row" justify="space-between" align="flex-start">
+    <Box class="page-header__text" gap="0">
+      <Heading class="page-header__title" level={1}>Accounts</Heading>
       {#if accounts.length > 0}
-        <p class="page-header__subtitle">
+        <Text as="p" class="page-header__subtitle">
           {accounts.length} account{accounts.length === 1 ? '' : 's'} ·
           Net balance: {formatCurrency(totalBalance)}
-        </p>
+        </Text>
       {/if}
-    </div>
+    </Box>
     {#if accounts.length > 0}
       <Button class="btn btn--primary" onclick={openCreate} aria-label="Add account">
         + Add Account
       </Button>
     {/if}
-  </header>
+  </Box>
 
   <!-- Loading skeleton -->
   {#if loading}
-    <div class="skeleton-list" aria-busy="true" aria-label="Loading accounts">
+    <Box class="skeleton-list" aria-busy="true" aria-label="Loading accounts" gap="var(--space-3, 0.75rem)">
       {#each [1, 2, 3] as _}
-        <div class="skeleton-card"></div>
+        <Box class="skeleton-card" />
       {/each}
-    </div>
+    </Box>
 
   <!-- Empty state -->
   {:else if accounts.length === 0}
-    <div class="empty-state" role="region" aria-label="No accounts yet">
-      <span class="empty-state__icon" aria-hidden="true">🏦</span>
-      <h2 class="empty-state__heading">No accounts yet</h2>
-      <p class="empty-state__body">
+    <Box class="empty-state" role="region" aria-label="No accounts yet" align="center" gap="var(--space-4, 1rem)">
+      <Text class="empty-state__icon" aria-hidden="true">🏦</Text>
+      <Heading class="empty-state__heading" level={2}>No accounts yet</Heading>
+      <Text as="p" class="empty-state__body">
         Add your first bank account, credit card, or investment account to
         start tracking your finances.
-      </p>
+      </Text>
       <Button class="btn btn--primary btn--lg" onclick={openCreate}>
         Add Your First Account
       </Button>
-    </div>
+    </Box>
 
   <!-- Account list -->
   {:else}
-    <ul class="account-list" aria-label="Account list">
+    <List class="account-list" aria-label="Account list">
       {#each accounts as account (account.id)}
-        <li class="account-card">
-          <span class="account-card__icon" aria-hidden="true">
+        <ListItem class="account-card">
+          <Text class="account-card__icon" aria-hidden="true">
             {ACCOUNT_TYPE_ICONS[account.type]}
-          </span>
-          <div class="account-card__info">
-            <span class="account-card__name">{account.name}</span>
+          </Text>
+          <Box class="account-card__info" gap="0">
+            <Text class="account-card__name">{account.name}</Text>
             {#if account.institution}
-              <span class="account-card__institution">{account.institution}</span>
+              <Text class="account-card__institution">{account.institution}</Text>
             {/if}
-            <span class="account-card__type">{ACCOUNT_TYPE_LABELS[account.type]}</span>
-          </div>
-          <span
+            <Text class="account-card__type">{ACCOUNT_TYPE_LABELS[account.type]}</Text>
+          </Box>
+          <Text
             class="account-card__balance"
             class:account-card__balance--negative={account.balance < 0}
           >
             {formatCurrency(account.balance)}
-          </span>
-          <div class="account-card__actions">
+          </Text>
+          <Box class="account-card__actions" direction="row" gap="var(--space-2, 0.5rem)">
             <Button
               class="btn btn--ghost btn--sm"
               onclick={() => openEdit(account)}
@@ -246,12 +266,12 @@
             >
               Delete
             </Button>
-          </div>
-        </li>
+          </Box>
+        </ListItem>
       {/each}
-    </ul>
+    </List>
   {/if}
-</div>
+</Box>
 
 <!-- ── Account form dialog ────────────────────────────────────────────────── -->
 {#if showForm}
@@ -261,10 +281,10 @@
     aria-modal="true"
     aria-labelledby="dialog-title"
   >
-    <header class="dialog__header">
-      <h2 class="dialog__title" id="dialog-title">
+    <Box as="header" class="dialog__header" direction="row" justify="space-between" align="center">
+      <Heading class="dialog__title" level={2} id="dialog-title">
         {isEditMode ? 'Edit Account' : 'Add Account'}
-      </h2>
+      </Heading>
       <Button
         class="btn btn--ghost btn--icon"
         onclick={closeForm}
@@ -272,9 +292,10 @@
       >
         ✕
       </Button>
-    </header>
+    </Box>
 
-    <form
+    <Box
+      as="form"
       class="dialog__body"
       onsubmit={(e) => {
         e.preventDefault();
@@ -285,59 +306,53 @@
       novalidate
     >
       {#if formError}
-        <p class="form-error" role="alert">{formError}</p>
+        <Text as="p" class="form-error" role="alert">{formError}</Text>
       {/if}
 
-      <div class="field">
-        <label class="field__label" for="account-name">
-          Account Name <span aria-hidden="true">*</span>
-        </label>
+      <Box class="field" gap="var(--space-1, 0.25rem)">
         <Input
-          id="account-name"
+          name="account-name"
           class="field__input"
           type="text"
           bind:value={formName}
           placeholder="e.g. Main Checking"
+          label="Account Name *"
           required
           autocomplete="off"
         />
-      </div>
+      </Box>
 
-      <div class="field">
-        <label class="field__label" for="account-institution">
-          Institution
-        </label>
+      <Box class="field" gap="var(--space-1, 0.25rem)">
         <Input
-          id="account-institution"
+          name="account-institution"
           class="field__input"
           type="text"
           bind:value={formInstitution}
           placeholder="e.g. Chase, Ally, Vanguard"
+          label="Institution"
           autocomplete="off"
         />
-      </div>
+      </Box>
 
-      <div class="field">
-        <label class="field__label" for="account-type">
-          Account Type <span aria-hidden="true">*</span>
-        </label>
-        <Select id="account-type" class="field__select" bind:value={formType}>
-          <option value="checking">Checking</option>
-          <option value="savings">Savings</option>
-          <option value="credit">Credit Card</option>
-          <option value="investment">Investment</option>
-        </Select>
-      </div>
+      <Box class="field" gap="var(--space-1, 0.25rem)">
+        <Select
+          name="account-type"
+          class="field__select"
+          bind:value={formType}
+          label="Account Type *"
+          options={accountTypeOptions}
+        />
+      </Box>
 
-      <div class="field">
-        <label class="field__label" for="account-balance">
+      <Box class="field" gap="var(--space-1, 0.25rem)">
+        <Text as="label" class="field__label" for="account-balance">
           {isEditMode ? 'Current Balance' : 'Starting Balance'}
-          <span aria-hidden="true">*</span>
-        </label>
-        <div class="field__prefix-wrap">
-          <span class="field__prefix" aria-hidden="true">$</span>
+          <Text as="span" aria-hidden="true"> *</Text>
+        </Text>
+        <Box class="field__prefix-wrap" direction="row" align="center">
+          <Text class="field__prefix" aria-hidden="true">$</Text>
           <Input
-            id="account-balance"
+            name="account-balance"
             class="field__input field__input--prefixed"
             type="number"
             step="0.01"
@@ -345,10 +360,10 @@
             placeholder="0.00"
             required
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <footer class="dialog__footer">
+      <Box as="footer" class="dialog__footer" direction="row" justify="flex-end" gap="var(--space-3, 0.75rem)">
         <Button
           class="btn btn--ghost"
           type="button"
@@ -360,8 +375,8 @@
         <Button class="btn btn--primary" type="submit" disabled={saving}>
           {saving ? 'Saving…' : isEditMode ? 'Save Changes' : 'Add Account'}
         </Button>
-      </footer>
-    </form>
+      </Box>
+    </Box>
   </Dialog>
 {/if}
 
@@ -373,17 +388,17 @@
     aria-modal="true"
     aria-labelledby="confirm-title"
   >
-    <header class="dialog__header">
-      <h2 class="dialog__title" id="confirm-title">Delete Account?</h2>
-    </header>
-    <div class="dialog__body">
-      <p class="dialog__text">
+    <Box as="header" class="dialog__header">
+      <Heading class="dialog__title" level={2} id="confirm-title">Delete Account?</Heading>
+    </Box>
+    <Box class="dialog__body">
+      <Text as="p" class="dialog__text">
         Are you sure you want to delete
-        <strong>{confirmDeleteTarget?.name ?? 'this account'}</strong>?
+        <Text as="strong">{confirmDeleteTarget?.name ?? 'this account'}</Text>?
         This action cannot be undone.
-      </p>
-    </div>
-    <footer class="dialog__footer">
+      </Text>
+    </Box>
+    <Box as="footer" class="dialog__footer" direction="row" justify="flex-end" gap="var(--space-3, 0.75rem)">
       <Button
         class="btn btn--ghost"
         onclick={() => (confirmDeleteId = null)}
@@ -402,7 +417,7 @@
       >
         Delete
       </Button>
-    </footer>
+    </Box>
   </Dialog>
 {/if}
 

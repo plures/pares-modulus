@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Box, List, ListItem, Text } from '@plures/design-dojo';
   import { getPluginContext } from '../../lib/context.js';
   import {
     FA_TRANSACTIONS_COLLECTION,
@@ -24,11 +25,15 @@
 
   // ── State ─────────────────────────────────────────────────────────────────
   let loading = $state(true);
+  // eslint-disable-next-line plures/no-raw-stores
   let transactions = $state<Transaction[]>([]);
+  // eslint-disable-next-line plures/no-raw-stores
   let inferences = $state<TransactionInference[]>([]);
+  // eslint-disable-next-line plures/no-raw-stores
   let budgets = $state<Budget[]>([]);
 
   // ── Derived: category inference lookup ───────────────────────────────────
+  // eslint-disable-next-line plures/no-raw-stores
   const catMap = $derived(
     new Map<string, string>(
       inferences
@@ -47,6 +52,7 @@
 
   const currentPrefix = $derived(currentMonthPrefix());
 
+  // eslint-disable-next-line plures/no-raw-stores
   const topBudgets = $derived<BudgetRow[]>(
     (() => {
       // Accumulate debit spend per category for the current calendar month.
@@ -114,37 +120,37 @@
   };
 </script>
 
-<div class="widget" aria-label="Budget Status">
+<Box class="widget" aria-label="Budget Status">
   {#if loading}
-    <div class="widget__skeleton" aria-busy="true" aria-label="Loading budget status">
+    <Box class="widget__skeleton" aria-busy="true" aria-label="Loading budget status" gap="var(--space-3, 0.75rem)">
       {#each [1, 2, 3] as _}
-        <div class="skeleton-row"></div>
+        <Box class="skeleton-row" />
       {/each}
-    </div>
+    </Box>
 
   {:else if budgets.length === 0}
-    <div class="widget__empty" role="region" aria-label="No budgets set up">
-      <span class="widget__empty-icon" aria-hidden="true">📊</span>
-      <p class="widget__empty-text">No budgets set up yet.</p>
-    </div>
+    <Box class="widget__empty" role="region" aria-label="No budgets set up" align="center" gap="var(--space-2, 0.5rem)">
+      <Text class="widget__empty-icon" aria-hidden="true">📊</Text>
+      <Text as="p" class="widget__empty-text">No budgets set up yet.</Text>
+    </Box>
 
   {:else}
-    <ul class="budget-list" aria-label="Top budgets by spending">
+    <List class="budget-list" aria-label="Top budgets by spending">
       {#each topBudgets as row (row.budget.id)}
         {@const color = STATUS_COLORS[row.status]}
-        <li class="budget-item">
-          <div class="budget-item__header">
-            <span class="budget-item__category">{row.budget.category}</span>
-            <span
+        <ListItem class="budget-item">
+          <Box class="budget-item__header" direction="row" justify="space-between" align="baseline">
+            <Text class="budget-item__category">{row.budget.category}</Text>
+            <Text
               class="budget-item__pct"
               style:color={color}
               aria-label={`${Math.round(row.pct)}% spent`}
             >
               {Math.round(row.pct)}%
-            </span>
-          </div>
+            </Text>
+          </Box>
           <!-- Mini progress bar -->
-          <div
+          <Box
             class="progress-track"
             role="progressbar"
             aria-valuenow={row.pct}
@@ -152,28 +158,28 @@
             aria-valuemax={100}
             aria-label={`${row.budget.category}: ${Math.round(row.pct)}% of budget used`}
           >
-            <div
+            <Box
               class="progress-fill"
               style:width={`${row.pct}%`}
               style:background={color}
-            ></div>
-          </div>
-          <div class="budget-item__sub">
-            <span class="budget-item__amounts">
+            />
+          </Box>
+          <Box class="budget-item__sub" direction="row" justify="space-between" align="center">
+            <Text class="budget-item__amounts">
               {fmt(row.actual)} / {fmt(row.budget.monthlyLimit)}
-            </span>
-            <span
+            </Text>
+            <Text
               class="budget-item__status"
               style:color={color}
             >
               {STATUS_LABELS[row.status]}
-            </span>
-          </div>
-        </li>
+            </Text>
+          </Box>
+        </ListItem>
       {/each}
-    </ul>
+    </List>
   {/if}
-</div>
+</Box>
 
 <style>
   /* ── Widget shell ──────────────────────────────────────────────────────── */

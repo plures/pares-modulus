@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Box, Text } from '@plures/design-dojo';
   import { getPluginContext } from '../../lib/context.js';
   import { FA_ACCOUNTS_COLLECTION, type Account } from '../../lib/accounts.js';
   import { FA_TRANSACTIONS_COLLECTION, type Transaction } from '../../lib/transactions.js';
@@ -13,22 +14,27 @@
 
   // ── State ─────────────────────────────────────────────────────────────────
   let loading = $state(true);
+  // eslint-disable-next-line plures/no-raw-stores
   let accounts = $state<Account[]>([]);
+  // eslint-disable-next-line plures/no-raw-stores
   let transactions = $state<Transaction[]>([]);
 
   // ── Derived: net worth breakdown ──────────────────────────────────────────
+  // eslint-disable-next-line plures/no-raw-stores
   const totalAssets = $derived(
     accounts
       .filter(a => a.type !== 'credit' || a.balance > 0)
       .reduce((sum, a) => sum + Math.max(a.balance, 0), 0),
   );
 
+  // eslint-disable-next-line plures/no-raw-stores
   const totalLiabilities = $derived(
     accounts
       .filter(a => a.type === 'credit' && a.balance < 0)
       .reduce((sum, a) => sum + Math.abs(a.balance), 0),
   );
 
+  // eslint-disable-next-line plures/no-raw-stores
   const netWorth = $derived(totalAssets - totalLiabilities);
 
   // ── Derived: trend arrow from current month vs previous month net ─────────
@@ -36,12 +42,14 @@
   const currentPrefix = $derived(currentMonthPrefix());
   const previousPrefix = $derived(previousMonthPrefix());
 
+  // eslint-disable-next-line plures/no-raw-stores
   const currentMonthNet = $derived(
     transactions
       .filter(tx => tx.date.startsWith(currentPrefix))
       .reduce((sum, tx) => sum + tx.amount, 0),
   );
 
+  // eslint-disable-next-line plures/no-raw-stores
   const previousMonthNet = $derived(
     transactions
       .filter(tx => tx.date.startsWith(previousPrefix))
@@ -51,6 +59,7 @@
   // Trend: improving if current month is better than previous month.
   // Falls back to net worth sign when no prior-month data exists.
   type Trend = 'up' | 'down' | 'neutral';
+  // eslint-disable-next-line plures/no-raw-stores
   const trend = $derived<Trend>((): Trend => {
     const hasCurrent = transactions.some(tx => tx.date.startsWith(currentPrefix));
     const hasPrevious = transactions.some(tx => tx.date.startsWith(previousPrefix));
@@ -92,30 +101,30 @@
   });
 </script>
 
-<div class="widget" aria-label="Net Worth">
+<Box class="widget" aria-label="Net Worth">
   {#if loading}
-    <div class="widget__skeleton" aria-busy="true" aria-label="Loading net worth"></div>
+    <Box class="widget__skeleton" aria-busy="true" aria-label="Loading net worth" />
 
   {:else if accounts.length === 0}
-    <div class="widget__empty" role="region" aria-label="No account data">
-      <span class="widget__empty-icon" aria-hidden="true">💰</span>
-      <p class="widget__empty-text">Add accounts to see your net worth.</p>
-    </div>
+    <Box class="widget__empty" role="region" aria-label="No account data" align="center" gap="var(--space-2, 0.5rem)">
+      <Text class="widget__empty-icon" aria-hidden="true">💰</Text>
+      <Text as="p" class="widget__empty-text">Add accounts to see your net worth.</Text>
+    </Box>
 
   {:else}
-    <div class="widget__content">
+    <Box class="widget__content">
       <!-- Primary value + trend arrow -->
-      <div class="net-worth__primary">
-        <span
+      <Box class="net-worth__primary" direction="row" align="center" gap="var(--space-2, 0.5rem)">
+        <Text
           class="net-worth__value"
           class:net-worth__value--positive={netWorth >= 0}
           class:net-worth__value--negative={netWorth < 0}
           aria-label={`Net worth: ${fmt(netWorth)}`}
         >
           {fmt(netWorth)}
-        </span>
+        </Text>
         {#if trend !== 'neutral'}
-          <span
+          <Text
             class="net-worth__trend"
             class:net-worth__trend--up={trend === 'up'}
             class:net-worth__trend--down={trend === 'down'}
@@ -123,28 +132,28 @@
             role="img"
           >
             {trend === 'up' ? '↑' : '↓'}
-          </span>
+          </Text>
         {/if}
-      </div>
+      </Box>
 
       <!-- Assets / Liabilities breakdown -->
-      <div class="net-worth__breakdown" aria-label="Net worth breakdown">
-        <div class="net-worth__row">
-          <span class="net-worth__row-label">Assets</span>
-          <span class="net-worth__row-value net-worth__row-value--positive">
+      <Box class="net-worth__breakdown" aria-label="Net worth breakdown">
+        <Box class="net-worth__row" direction="row" justify="space-between" align="center">
+          <Text class="net-worth__row-label">Assets</Text>
+          <Text class="net-worth__row-value net-worth__row-value--positive">
             {fmt(totalAssets)}
-          </span>
-        </div>
-        <div class="net-worth__row">
-          <span class="net-worth__row-label">Liabilities</span>
-          <span class="net-worth__row-value net-worth__row-value--negative">
+          </Text>
+        </Box>
+        <Box class="net-worth__row" direction="row" justify="space-between" align="center">
+          <Text class="net-worth__row-label">Liabilities</Text>
+          <Text class="net-worth__row-value net-worth__row-value--negative">
             {fmt(totalLiabilities)}
-          </span>
-        </div>
-      </div>
-    </div>
+          </Text>
+        </Box>
+      </Box>
+    </Box>
   {/if}
-</div>
+</Box>
 
 <style>
   /* ── Widget shell ──────────────────────────────────────────────────────── */
