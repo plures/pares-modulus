@@ -1,3 +1,7 @@
+## [0.5.0] — 2026-05-09
+
+- feat: Agent Console wired to real Tauri commands via agent-api (db0c50c)
+
 ## [0.4.0] — 2026-05-08
 
 - feat: agent console (chat) plugin — AI conversation interface (3820dc2)
