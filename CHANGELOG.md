@@ -1,3 +1,7 @@
+## [0.6.0] — 2026-05-10
+
+- feat: add Goals, Dashboard pages + shared store to FA plugin (14c0519)
+
 ## [0.5.0] — 2026-05-09
 
 - feat: Agent Console wired to real Tauri commands via agent-api (db0c50c)
