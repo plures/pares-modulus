@@ -1,3 +1,7 @@
+## [0.7.0] — 2026-05-10
+
+- feat: migrate netops-toolkit pages to plugin (inventory, scan, health, config, vault) (49adf7b)
+
 ## [0.6.0] — 2026-05-10
 
 - feat: add Goals, Dashboard pages + shared store to FA plugin (14c0519)
