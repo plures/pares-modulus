@@ -1,3 +1,7 @@
+## [0.7.1] — 2026-05-11
+
+- refactor: replace inline lifecycle with reusable workflow call (608cc71)
+
 ## [0.7.0] — 2026-05-10
 
 - feat: migrate netops-toolkit pages to plugin (inventory, scan, health, config, vault) (49adf7b)
