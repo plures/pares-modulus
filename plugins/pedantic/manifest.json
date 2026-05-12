@@ -1,0 +1,22 @@
+{
+  "id": "pedantic",
+  "name": "Pedantic",
+  "version": "0.1.0",
+  "description": "DSC v3 compliance and configuration validation with praxis enforcement",
+  "author": "plures",
+  "license": "MIT",
+  "icon": "🛡️",
+  "keywords": ["dsc", "compliance", "configuration", "praxis", "validation"],
+  "homepage": "https://github.com/plures/pedantic",
+  "repository": "https://github.com/plures/pedantic",
+  "radix": ">=0.2.0",
+  "dependencies": [],
+  "peerDependencies": {
+    "@plures/design-dojo": ">=0.1.0"
+  },
+  "entry": "src/index.ts",
+  "size": {
+    "source": "32KB",
+    "estimated_bundle": "56KB"
+  }
+}
