@@ -1,0 +1,21 @@
+{
+  "id": "{{plugin-id}}",
+  "name": "{{Plugin Name}}",
+  "version": "0.1.0",
+  "description": "{{Brief description of your plugin}}",
+  "author": "{{your-name}}",
+  "license": "MIT",
+  "icon": "🔌",
+  "keywords": [],
+  "homepage": "https://github.com/plures/pares-modulus/tree/main/plugins/{{plugin-id}}",
+  "repository": "https://github.com/plures/pares-modulus",
+  "radix": ">=1.44.0",
+  "dependencies": [],
+  "peerDependencies": {},
+  "entry": "src/index.ts",
+  "px": "px/",
+  "size": {
+    "source": "~5KB",
+    "estimated_bundle": "~10KB"
+  }
+}

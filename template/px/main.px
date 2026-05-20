@@ -1,0 +1,28 @@
+# {{Plugin Name}} — main logic
+#
+# This file is automatically compiled and registered by pares-radix.
+# Procedures here fire reactively when their triggers match events
+# in PluresDB.
+#
+# Available triggers:
+#   manual              — called explicitly (via tool, UI, or another procedure)
+#   event("type")       — fires on PluresDB event write with that type
+#   timer("name")       — fires on a scheduled timer
+#   state_change("key") — fires when a PluresDB key is written
+#
+# Steps call your ActionHandlers by name. Return values bind with ->
+
+# Example: a manual procedure that greets someone
+procedure greet:
+  trigger: manual
+  given: "Greet a user by name"
+  hello {name: $name} -> $result
+  # $result.greeting is now "Hello, <name>!"
+
+# Example: reactive procedure that fires on an event
+# procedure on_new_item:
+#   trigger: event("item.created")
+#   validate_item {item: $content} -> $validation
+#   when $validation.valid:
+#     store_item {item: $content} -> $stored
+#     notify_user {message: "Item created successfully"}

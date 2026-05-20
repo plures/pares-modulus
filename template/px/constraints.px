@@ -1,0 +1,13 @@
+# Constraints — enforce correctness for your plugin's domain.
+#
+# Constraints are checked by pares-radix before actions execute.
+# If a constraint fires (severity: error), the action is blocked.
+#
+# Write constraints for invariants that must NEVER be violated.
+
+# Example: ensure required fields exist before processing
+# constraint item_has_name:
+#   when: context.type == "item.create"
+#   require: context.data.name != ""
+#   severity: error
+#   message: "Items must have a name"

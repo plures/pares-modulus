@@ -1,0 +1,17 @@
+# Plugin tests — executable .px test scenarios.
+#
+# These run via `px run tests.px` or the pares-radix test harness.
+# Each procedure is a test case that calls your handlers and asserts results.
+
+procedure test_greet:
+  trigger: manual
+  given: "The hello handler returns a greeting"
+  hello {name: "World"} -> $result
+  assert_eq {actual: $result.greeting, expected: "Hello, World!"}
+
+# Add more test procedures here:
+# procedure test_validation:
+#   trigger: manual
+#   given: "Invalid items are rejected"
+#   validate_item {item: {}} -> $result
+#   assert_eq {actual: $result.valid, expected: false}
