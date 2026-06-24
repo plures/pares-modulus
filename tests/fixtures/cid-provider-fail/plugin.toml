@@ -1,0 +1,25 @@
+# FAIL fixture: a commerce provider whose declared surface is INCOMPLETE.
+# Missing operation: decide_tier
+# Missing provider event: commerce.tier.decide.completed
+# The gate must exit 1 and name both missing pieces.
+
+[plugin]
+name = "cid-provider-fail-fixture"
+version = "1.0.0"
+
+[capabilities.provided]
+commerce = "1.0.0"
+
+[capabilities.interface.commerce]
+cid = "commerce@1.x"
+spec = "commerce.cid.toml"
+provides_operations = [
+  "issue_coupon",
+  "authorize_redemption",
+  "check_nullifier",
+]
+provides_events = [
+  "commerce.issue.completed",
+  "commerce.redeem.completed",
+  "commerce.nullifier.check.completed",
+]

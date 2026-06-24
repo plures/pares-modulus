@@ -1,0 +1,41 @@
+# Minimal vendored CID contract for the commerce capability.
+# Mirrors the canonical pares-radix capabilities/commerce.cid.toml surface
+# used by the modulus CID-surface gate self-test. Not the full contract —
+# just enough operations/events to exercise surface coverage validation.
+
+name = "commerce"
+version = "1.0.0"
+
+[[operations]]
+name = "issue_coupon"
+request_event = "commerce.issue.requested"
+result_event = "commerce.issue.completed"
+
+[[operations]]
+name = "authorize_redemption"
+request_event = "commerce.redeem.requested"
+result_event = "commerce.redeem.completed"
+
+[[operations]]
+name = "check_nullifier"
+request_event = "commerce.nullifier.check.requested"
+result_event = "commerce.nullifier.check.completed"
+
+[[operations]]
+name = "decide_tier"
+request_event = "commerce.tier.decide.requested"
+result_event = "commerce.tier.decide.completed"
+
+[events]
+emitted_by_consumer = [
+  "commerce.issue.requested",
+  "commerce.redeem.requested",
+  "commerce.nullifier.check.requested",
+  "commerce.tier.decide.requested",
+]
+emitted_by_provider = [
+  "commerce.issue.completed",
+  "commerce.redeem.completed",
+  "commerce.nullifier.check.completed",
+  "commerce.tier.decide.completed",
+]

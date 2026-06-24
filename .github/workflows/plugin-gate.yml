@@ -50,6 +50,9 @@ jobs:
       - name: "Gate: Manifest Validation"
         run: npx tsx gates/validate-manifest.ts plugins/${{ matrix.plugin }}
 
+      - name: "Gate: CID Surface"
+        run: npx tsx gates/validate-cid-surface.ts plugins/${{ matrix.plugin }}
+
       - name: "Gate: Security Scan"
         run: npx tsx gates/security-scan.ts plugins/${{ matrix.plugin }}
 
@@ -84,6 +87,7 @@ jobs:
           echo "| Gate | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| Manifest | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| CID Surface | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
           echo "| Security | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
           echo "| Size | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
 

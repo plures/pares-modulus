@@ -1,0 +1,26 @@
+# PASS fixture: a commerce capability PROVIDER whose declared surface fully
+# covers the vendored commerce.cid.toml contract (4 ops, 4 provider events).
+# `spec` resolves to the sibling commerce.cid.toml (resolution candidate #1).
+
+[plugin]
+name = "cid-provider-pass-fixture"
+version = "1.0.0"
+
+[capabilities.provided]
+commerce = "1.0.0"
+
+[capabilities.interface.commerce]
+cid = "commerce@1.x"
+spec = "commerce.cid.toml"
+provides_operations = [
+  "issue_coupon",
+  "authorize_redemption",
+  "check_nullifier",
+  "decide_tier",
+]
+provides_events = [
+  "commerce.issue.completed",
+  "commerce.redeem.completed",
+  "commerce.nullifier.check.completed",
+  "commerce.tier.decide.completed",
+]
