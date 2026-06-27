@@ -10,9 +10,10 @@
     "test": "echo \"No tests yet\" && exit 0",
     "registry:build": "tsx scripts/build-registry.ts",
     "gate:manifest": "tsx gates/validate-manifest.ts",
+    "gate:dependencies": "tsx gates/validate-dependencies.ts",
     "gate:security": "tsx gates/security-scan.ts",
     "gate:size": "tsx gates/size-audit.ts",
-    "gate:all": "npm run gate:manifest -- plugins/$PLUGIN && npm run gate:security -- plugins/$PLUGIN && npm run gate:size -- plugins/$PLUGIN"
+    "gate:all": "npm run gate:manifest -- plugins/$PLUGIN && npm run gate:dependencies -- plugins/$PLUGIN && npm run gate:security -- plugins/$PLUGIN && npm run gate:size -- plugins/$PLUGIN"
   },
   "keywords": [
     "praxis",

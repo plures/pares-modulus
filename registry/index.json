@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-03-28T06:28:33.386Z",
+  "generated": "2026-06-27T20:21:11.997Z",
   "plugins": [
     {
       "id": "agent-console",
@@ -15,7 +15,7 @@
         "channels"
       ],
       "radix": ">=0.1.0",
-      "size": "0KB",
+      "size": "10KB",
       "path": "plugins/agent-console",
       "tested": false,
       "status": "planned"
@@ -35,7 +35,7 @@
         "inference"
       ],
       "radix": ">=0.1.0",
-      "size": "24KB",
+      "size": "305KB",
       "path": "plugins/financial-advisor",
       "tested": false,
       "status": "development"
@@ -53,8 +53,28 @@
         "monitoring"
       ],
       "radix": ">=0.1.0",
-      "size": "0KB",
+      "size": "51KB",
       "path": "plugins/netops-toolkit",
+      "tested": false,
+      "status": "planned"
+    },
+    {
+      "id": "pedantic",
+      "name": "Pedantic",
+      "version": "0.1.0",
+      "description": "DSC v3 compliance and configuration validation with praxis enforcement",
+      "author": "plures",
+      "icon": "🛡️",
+      "keywords": [
+        "dsc",
+        "compliance",
+        "configuration",
+        "praxis",
+        "validation"
+      ],
+      "radix": ">=0.2.0",
+      "size": "1KB",
+      "path": "plugins/pedantic",
       "tested": false,
       "status": "planned"
     },
@@ -71,7 +91,7 @@
         "velocity"
       ],
       "radix": ">=0.1.0",
-      "size": "0KB",
+      "size": "1KB",
       "path": "plugins/sprint-log",
       "tested": false,
       "status": "planned"
@@ -89,7 +109,7 @@
         "security"
       ],
       "radix": ">=0.1.0",
-      "size": "0KB",
+      "size": "11KB",
       "path": "plugins/vault",
       "tested": false,
       "status": "planned"

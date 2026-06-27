@@ -51,11 +51,28 @@
     "dependencies": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "Other modulus plugin IDs this depends on"
+      "description": "Other modulus plugin IDs this depends on (hard, ID-based — VS Code extensionDependencies analogue)"
     },
     "peerDependencies": {
       "type": "object",
       "additionalProperties": { "type": "string" }
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Capability-aware dependencies (ADR-0022/ADR-0024). 'requires' maps a capability name to a semver range the plugin needs a provider for; 'provides' maps a capability name to the semver version this plugin supplies. Resolution: a required capability is satisfied by an installed plugin whose 'provides' (or linked radix CID provided-surface) matches name + semver. An unsatisfied required capability is a gate ERROR.",
+      "properties": {
+        "requires": {
+          "type": "object",
+          "description": "capability-name -> semver range (e.g. { \"secrets\": \"^1\", \"storage\": \"^1.2.0\" })",
+          "additionalProperties": { "type": "string" }
+        },
+        "provides": {
+          "type": "object",
+          "description": "capability-name -> semver version this plugin provides (e.g. { \"secrets\": \"1.0.0\" }). MUST match the plugin's radix CID provided-surface when a CID is linked.",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
     },
     "entry": {
       "type": "string",
