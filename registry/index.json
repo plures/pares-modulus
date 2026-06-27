@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-06-27T20:21:11.997Z",
+  "generated": "2026-06-27T20:42:00.882Z",
   "plugins": [
     {
       "id": "agent-console",
@@ -35,9 +35,9 @@
         "inference"
       ],
       "radix": ">=0.1.0",
-      "size": "305KB",
+      "size": "374KB",
       "path": "plugins/financial-advisor",
-      "tested": false,
+      "tested": true,
       "status": "development"
     },
     {
