@@ -1,14 +1,26 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { Button, Card } from '@plures/design-dojo';
-  import { getAccounts } from '../lib/store';
+  import { getPluginContext } from '../lib/context.js';
+  import { FA_ACCOUNTS_COLLECTION, type Account } from '../lib/accounts.js';
 
   let greeting = $state('Financial Advisor');
   let hasAccounts = $state(false);
   let showHelp = $state(false);
 
-  $effect(() => {
-    const accounts = getAccounts();
-    hasAccounts = accounts.length > 0;
+  // Load accounts from PluresDB (via ctx.data.collection) to decide whether to
+  // show onboarding or the dashboard grid. Mirrors the Accounts page pattern.
+  onMount(() => {
+    const ctx = getPluginContext();
+    const collection = ctx?.data.collection<Account>(FA_ACCOUNTS_COLLECTION);
+    collection
+      ?.query()
+      .then((accounts) => {
+        hasAccounts = (accounts ?? []).length > 0;
+      })
+      .catch(() => {
+        hasAccounts = false;
+      });
   });
 
   const steps = [
@@ -164,8 +176,9 @@
           <div class="help-item">
             <h4>🔒 Is my data private?</h4>
             <p>
-              Yes. All data is stored locally in your browser's localStorage. Nothing is sent to
-              external servers unless you explicitly configure an AI provider.
+              Yes. Your financial data is stored privately on your device through
+              PluresDB — your local-first data store. Nothing is sent to external
+              servers unless you explicitly configure an AI provider.
             </p>
           </div>
           <div class="help-item">

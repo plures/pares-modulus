@@ -11,6 +11,7 @@ import { vendorClustering } from './rules/vendor-clustering.js';
 import { refundDetection } from './rules/refund-detection.js';
 import { taxVarianceDetection } from './rules/tax-variance.js';
 import { setPluginContext, clearPluginContext } from './lib/context.js';
+import { migrateLocalStorageToPluresDB } from './lib/migrate.js';
 
 const financialAdvisor: RadixPlugin = {
   id: 'financial-advisor',
@@ -223,6 +224,13 @@ const financialAdvisor: RadixPlugin = {
   async onActivate(ctx: PluginContext) {
     console.log('[financial-advisor] Plugin activated');
     setPluginContext(ctx);
+    // One-time, idempotent migration of any legacy localStorage data into
+    // PluresDB collections. Safe to call on every activation (flag-gated).
+    try {
+      await migrateLocalStorageToPluresDB(ctx);
+    } catch (error) {
+      console.error('[financial-advisor] localStorage→PluresDB migration failed:', error);
+    }
     // TODO: load inference rules into inference engine
   },
 

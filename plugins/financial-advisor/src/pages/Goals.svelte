@@ -1,9 +1,19 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { Badge, Callout, Button, Input, Select, Card } from '@plures/design-dojo';
   import { slide, fade } from 'svelte/transition';
-  import type { Goal } from '../lib/goals';
-  import { calculateGoalProgress } from '../lib/goals';
-  import { getGoals, saveGoal, deleteGoal } from '../lib/store';
+  import { getPluginContext } from '../lib/context.js';
+  import type { PluginContext, DataCollection } from '@plures/pares-radix';
+  import {
+    FA_GOALS_COLLECTION,
+    calculateGoalProgress,
+    generateGoalId,
+    type Goal,
+  } from '../lib/goals.js';
+
+  // eslint-disable-next-line plures/no-raw-stores
+  let ctx: PluginContext | null = null;
+  let collection: DataCollection<Goal> | undefined;
 
   let goals = $state<Goal[]>([]);
   let showAddForm = $state(false);
@@ -11,7 +21,7 @@
   let selectedGoalId = $state('');
   let progressAmount = $state(0);
   let errors = $state<string[]>([]);
-  
+
   let newGoal = $state<Partial<Goal>>({
     name: '',
     targetAmount: 0,
@@ -20,11 +30,25 @@
     isCompleted: false,
   });
 
-  $effect(() => {
-    goals = getGoals();
+  // ── Load goals from PluresDB on mount (Accounts page pattern) ─────────────
+  onMount(() => {
+    ctx = getPluginContext();
+    collection = ctx?.data.collection<Goal>(FA_GOALS_COLLECTION);
+    loadGoals().catch(() => {
+      errors = ['Failed to load goals.'];
+    });
   });
 
-  function handleAddGoal() {
+  async function loadGoals(): Promise<void> {
+    try {
+      goals = (await collection?.query()) ?? [];
+    } catch {
+      goals = [];
+      ctx?.notify.error('Failed to load goals.');
+    }
+  }
+
+  async function handleAddGoal(): Promise<void> {
     errors = [];
 
     const targetAmount = Number(newGoal.targetAmount);
@@ -39,8 +63,13 @@
       return;
     }
 
+    if (!collection) {
+      errors = ['Database not available.'];
+      return;
+    }
+
     const goal: Goal = {
-      id: `goal-${Date.now()}`,
+      id: generateGoalId(),
       name: newGoal.name,
       targetAmount: targetAmount,
       currentAmount: newGoal.currentAmount || 0,
@@ -50,10 +79,16 @@
       createdAt: new Date(),
     };
 
-    saveGoal(goal);
-    goals = getGoals();
-    showAddForm = false;
-    resetForm();
+    try {
+      await collection.put(goal.id, goal);
+      goals = [...goals, goal];
+      ctx?.notify.success('Goal created.');
+      showAddForm = false;
+      resetForm();
+    } catch {
+      errors = ['Failed to save goal. Please try again.'];
+      ctx?.notify.error('Failed to save goal.');
+    }
   }
 
   function resetForm() {
@@ -67,7 +102,7 @@
     errors = [];
   }
 
-  function updateGoalProgress(id: string, amount: number) {
+  async function updateGoalProgress(id: string, amount: number): Promise<void> {
     errors = [];
 
     const parsedAmount = Number(amount);
@@ -77,18 +112,28 @@
     }
 
     const goal = goals.find(g => g.id === id);
-    if (goal) {
-      const newAmount = Math.max(0, goal.currentAmount || 0) + parsedAmount;
-      saveGoal({
-        ...goal,
-        currentAmount: newAmount,
-        isCompleted: newAmount >= goal.targetAmount,
-      });
-      goals = getGoals();
+    if (!goal) return;
+    if (!collection) {
+      errors = ['Database not available.'];
+      return;
+    }
 
+    const newAmount = Math.max(0, goal.currentAmount || 0) + parsedAmount;
+    const updated: Goal = {
+      ...goal,
+      currentAmount: newAmount,
+      isCompleted: newAmount >= goal.targetAmount,
+    };
+
+    try {
+      await collection.put(updated.id, updated);
+      goals = goals.map(g => (g.id === updated.id ? updated : g));
       showProgressForm = false;
       progressAmount = 0;
       selectedGoalId = '';
+    } catch {
+      errors = ['Failed to update progress. Please try again.'];
+      ctx?.notify.error('Failed to update goal progress.');
     }
   }
 
@@ -104,10 +149,15 @@
     progressAmount = 0;
   }
 
-  function handleDeleteGoal(id: string) {
-    if (confirm('Are you sure you want to delete this goal?')) {
-      deleteGoal(id);
-      goals = getGoals();
+  async function handleDeleteGoal(id: string): Promise<void> {
+    if (!confirm('Are you sure you want to delete this goal?')) return;
+    if (!collection) return;
+    try {
+      await collection.delete(id);
+      goals = goals.filter(g => g.id !== id);
+      ctx?.notify.success('Goal deleted.');
+    } catch {
+      ctx?.notify.error('Failed to delete goal.');
     }
   }
 

@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "noEmit": true,
+    "types": ["vitest/globals"],
+    "paths": {
+      "@plures/pares-radix": ["../../types/pares-radix.d.ts"],
+      "@plures/design-dojo": ["../../types/design-dojo.d.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
