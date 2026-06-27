@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-06-27T20:42:00.882Z",
+  "generated": "2026-06-27T21:58:14.681Z",
   "plugins": [
     {
       "id": "agent-console",
@@ -77,6 +77,55 @@
       "path": "plugins/pedantic",
       "tested": false,
       "status": "planned"
+    },
+    {
+      "id": "secrets-consumer-fixture",
+      "name": "Secrets Consumer Fixture",
+      "version": "0.1.0",
+      "description": "Minimal capability CONSUMER used to verify secrets@^1 resolves against the secrets-provider. Declares only capabilities.requires.secrets.",
+      "author": "plures",
+      "icon": "🔑",
+      "keywords": [
+        "fixture",
+        "capability",
+        "consumer",
+        "secrets"
+      ],
+      "radix": ">=0.1.0",
+      "size": "2KB",
+      "path": "plugins/secrets-consumer-fixture",
+      "tested": false,
+      "status": "development",
+      "capabilities": {
+        "requires": {
+          "secrets": "^1"
+        }
+      }
+    },
+    {
+      "id": "secrets-provider",
+      "name": "Secrets Provider",
+      "version": "1.0.0",
+      "description": "Zero-trust, locally-encrypted credential store (unlock/lock gated). Conformance provider for the secrets@1.x capability (AES-256-GCM + PBKDF2).",
+      "author": "plures",
+      "icon": "🔐",
+      "keywords": [
+        "secrets",
+        "encryption",
+        "vault",
+        "credentials",
+        "capability"
+      ],
+      "radix": ">=0.1.0",
+      "size": "56KB",
+      "path": "plugins/secrets-provider",
+      "tested": true,
+      "status": "stable",
+      "capabilities": {
+        "provides": {
+          "secrets": "1.0.0"
+        }
+      }
     },
     {
       "id": "sprint-log",

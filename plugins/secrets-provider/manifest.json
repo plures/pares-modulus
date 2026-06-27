@@ -1,0 +1,24 @@
+{
+  "id": "secrets-provider",
+  "name": "Secrets Provider",
+  "version": "1.0.0",
+  "description": "Zero-trust, locally-encrypted credential store (unlock/lock gated). Conformance provider for the secrets@1.x capability (AES-256-GCM + PBKDF2).",
+  "author": "plures",
+  "license": "MIT",
+  "icon": "🔐",
+  "keywords": ["secrets", "encryption", "vault", "credentials", "capability"],
+  "homepage": "https://github.com/plures/pares-modulus/tree/main/plugins/secrets-provider",
+  "repository": "https://github.com/plures/pares-modulus",
+  "radix": ">=0.1.0",
+  "dependencies": [],
+  "capabilities": {
+    "provides": {
+      "secrets": "1.0.0"
+    }
+  },
+  "entry": "src/index.ts",
+  "size": {
+    "source": "32KB",
+    "estimated_bundle": "40KB"
+  }
+}

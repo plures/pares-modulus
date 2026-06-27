@@ -1,0 +1,18 @@
+{
+  "id": "secrets-consumer-fixture",
+  "name": "Secrets Consumer Fixture",
+  "version": "0.1.0",
+  "description": "Minimal capability CONSUMER used to verify secrets@^1 resolves against the secrets-provider. Declares only capabilities.requires.secrets.",
+  "author": "plures",
+  "license": "MIT",
+  "icon": "🔑",
+  "keywords": ["fixture", "capability", "consumer", "secrets"],
+  "radix": ">=0.1.0",
+  "dependencies": [],
+  "capabilities": {
+    "requires": {
+      "secrets": "^1"
+    }
+  },
+  "entry": "src/index.ts"
+}
