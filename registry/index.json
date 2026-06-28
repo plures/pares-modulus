@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-06-27T21:58:14.681Z",
+  "generated": "2026-06-28T02:23:44.834Z",
   "plugins": [
     {
       "id": "agent-console",
@@ -77,6 +77,56 @@
       "path": "plugins/pedantic",
       "tested": false,
       "status": "planned"
+    },
+    {
+      "id": "scene-consumer-fixture",
+      "name": "Scene Consumer Fixture",
+      "version": "0.1.0",
+      "description": "Minimal capability CONSUMER used to verify scene@^1 resolves against the scene-provider. Declares only capabilities.requires.scene.",
+      "author": "plures",
+      "icon": "🛰️",
+      "keywords": [
+        "fixture",
+        "capability",
+        "consumer",
+        "scene"
+      ],
+      "radix": ">=0.1.0",
+      "size": "2KB",
+      "path": "plugins/scene-consumer-fixture",
+      "tested": false,
+      "status": "development",
+      "capabilities": {
+        "requires": {
+          "scene": "^1"
+        }
+      }
+    },
+    {
+      "id": "scene-provider",
+      "name": "Scene Provider",
+      "version": "1.0.0",
+      "description": "Render-agnostic 3D scene state provider (Render State View read-model + Intent write-model). Conformance provider for the scene@1.x capability, grounded in the inner-space render-state contract.",
+      "author": "plures",
+      "icon": "🎬",
+      "keywords": [
+        "scene",
+        "render",
+        "rsv",
+        "intent",
+        "capability",
+        "inner-space"
+      ],
+      "radix": ">=0.1.0",
+      "size": "42KB",
+      "path": "plugins/scene-provider",
+      "tested": true,
+      "status": "stable",
+      "capabilities": {
+        "provides": {
+          "scene": "1.0.0"
+        }
+      }
     },
     {
       "id": "secrets-consumer-fixture",

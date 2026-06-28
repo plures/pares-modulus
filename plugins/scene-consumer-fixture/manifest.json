@@ -1,0 +1,18 @@
+{
+  "id": "scene-consumer-fixture",
+  "name": "Scene Consumer Fixture",
+  "version": "0.1.0",
+  "description": "Minimal capability CONSUMER used to verify scene@^1 resolves against the scene-provider. Declares only capabilities.requires.scene.",
+  "author": "plures",
+  "license": "MIT",
+  "icon": "🛰️",
+  "keywords": ["fixture", "capability", "consumer", "scene"],
+  "radix": ">=0.1.0",
+  "dependencies": [],
+  "capabilities": {
+    "requires": {
+      "scene": "^1"
+    }
+  },
+  "entry": "src/index.ts"
+}

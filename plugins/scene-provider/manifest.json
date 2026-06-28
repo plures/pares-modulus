@@ -1,0 +1,24 @@
+{
+  "id": "scene-provider",
+  "name": "Scene Provider",
+  "version": "1.0.0",
+  "description": "Render-agnostic 3D scene state provider (Render State View read-model + Intent write-model). Conformance provider for the scene@1.x capability, grounded in the inner-space render-state contract.",
+  "author": "plures",
+  "license": "MIT",
+  "icon": "🎬",
+  "keywords": ["scene", "render", "rsv", "intent", "capability", "inner-space"],
+  "homepage": "https://github.com/plures/pares-modulus/tree/main/plugins/scene-provider",
+  "repository": "https://github.com/plures/pares-modulus",
+  "radix": ">=0.1.0",
+  "dependencies": [],
+  "capabilities": {
+    "provides": {
+      "scene": "1.0.0"
+    }
+  },
+  "entry": "src/index.ts",
+  "size": {
+    "source": "TBD",
+    "estimated_bundle": "TBD"
+  }
+}
