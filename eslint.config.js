@@ -51,6 +51,15 @@ export default tseslint.config(
   // ── Plures Platform Constraints ────────────────────────────────────────────
   // These rules enforce that pares-radix uses ONLY plures primitives.
   // Violations are compile errors — not warnings, not guidelines.
+  // Register the plures plugin globally so that inline
+  // `eslint-disable plures/*` directives in plugin source resolve to a known
+  // rule (otherwise ESLint reports "Definition for rule ... was not found").
+  // The rules themselves are only ENABLED for the core app under src/** below.
+  {
+    plugins: {
+      plures: pluresPlugin,
+    },
+  },
   {
     files: ['src/**/*.svelte', 'src/**/*.ts'],
     plugins: {
