@@ -1,0 +1,11 @@
+packages:
+  - "packages/*"
+
+allowBuilds:
+  esbuild: set this to true or false
+
+# esbuild ships a native binary via a postinstall build script. pnpm >=10
+# blocks unlisted build scripts by default and exits non-zero
+# (ERR_PNPM_IGNORED_BUILDS), which fails CI. Explicitly allow it.
+onlyBuiltDependencies:
+  - esbuild
