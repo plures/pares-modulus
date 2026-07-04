@@ -10,7 +10,7 @@
     tags: string[];
   }
 
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let secrets = $state<Secret[]>([
     { id: '1', name: 'GITHUB_PAT', category: 'API Key', lastRotated: '2d ago', expiresIn: '5d', tags: ['ci', 'github'] },
     { id: '2', name: 'ADO_PAT', category: 'API Key', lastRotated: '1d ago', expiresIn: '6d', tags: ['ci', 'azure'] },
@@ -18,9 +18,9 @@
     { id: '4', name: 'SSH_PRIVATE_KEY', category: 'Key', lastRotated: '90d ago', expiresIn: 'Never', tags: ['ssh', 'deploy'] },
   ]);
 
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let searchQuery = $state('');
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let filtered = $derived(
     secrets.filter(s =>
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

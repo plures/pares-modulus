@@ -5,7 +5,7 @@
  * config management, and credential vault.
  */
 
-import type { RadixPlugin } from '@plures/pares-radix';
+import type { RadixPlugin, PluginContext } from '@plures/pares-radix';
 
 const netopsToolkit: RadixPlugin = {
   id: 'netops-toolkit',
@@ -104,11 +104,11 @@ const netopsToolkit: RadixPlugin = {
     },
   ],
 
-  onLoad: async (context) => {
+  async onActivate(context: PluginContext) {
     console.log('[netops-toolkit] Plugin loaded', context);
   },
 
-  onUnload: async () => {
+  async onDeactivate() {
     console.log('[netops-toolkit] Plugin unloaded');
   },
 };

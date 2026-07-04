@@ -1,13 +1,13 @@
 <script lang="ts">
   import { Box, Heading, Text, Button } from '@plures/design-dojo';
 
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let locked = $state(true);
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let secretCount = $state(0);
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let lastRotation = $state('Never');
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let pendingRotations = $state(0);
 </script>
 

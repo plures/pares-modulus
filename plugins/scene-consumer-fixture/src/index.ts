@@ -27,7 +27,7 @@ const sceneConsumerFixture: RadixPlugin = {
     // A real consumer would emit `scene.entity.spawn.requested` /
     // `scene.compose.requested` events here and read the paired result events.
     // The fixture stays inert.
-    // eslint-disable-next-line no-console
+     
     console.log('[scene-consumer-fixture] activated — would use scene@^1 via mediated events');
   },
 };

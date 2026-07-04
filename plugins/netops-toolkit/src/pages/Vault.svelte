@@ -12,8 +12,7 @@
 	import type {
 		AuthMethod,
 		CredentialScope,
-		VaultCredential,
-		VaultSetPayload
+		VaultCredential
 	} from '../lib/types.js';
 	import { getVaultCredentials, saveVaultCredentials, deleteVaultCredential } from '../lib/store.js';
 
@@ -121,7 +120,6 @@
 	let formScope = $state<CredentialScope>('default');
 	let formTarget = $state('');
 	let formUsername = $state('');
-	let formPassword = $state('');
 	let formEnableSecret = $state('');
 	let formAuthMethod = $state<AuthMethod>('password');
 
@@ -130,7 +128,6 @@
 		formScope = 'default';
 		formTarget = '';
 		formUsername = '';
-		formPassword = '';
 		formEnableSecret = '';
 		formAuthMethod = 'password';
 		errorMsg = '';
@@ -142,7 +139,6 @@
 		formScope = cred.scope;
 		formTarget = cred.target ?? '';
 		formUsername = cred.username;
-		formPassword = '';
 		formEnableSecret = '';
 		formAuthMethod = cred.authMethod;
 		errorMsg = '';
@@ -179,7 +175,6 @@
 			successMsg = editingId ? 'Credential updated.' : 'Credential added.';
 			view = 'list';
 		} finally {
-			formPassword = '';
 			formEnableSecret = '';
 			loading = false;
 		}

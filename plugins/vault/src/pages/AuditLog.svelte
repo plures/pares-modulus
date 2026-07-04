@@ -9,7 +9,7 @@
     result: string;
   }
 
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let entries = $state<AuditEntry[]>([
     { timestamp: '2026-05-08 10:30', action: 'READ', secret: 'GITHUB_PAT', actor: 'ai:cerebellum', result: '✅ Allowed' },
     { timestamp: '2026-05-08 10:25', action: 'ROTATE', secret: 'ADO_PAT', actor: 'system:cron', result: '✅ Success' },

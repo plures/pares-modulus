@@ -11,7 +11,7 @@
     type Goal,
   } from '../lib/goals.js';
 
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let ctx: PluginContext | null = null;
   let collection: DataCollection<Goal> | undefined;
 
@@ -186,7 +186,7 @@
   </header>
 
   {#if showAddForm}
-    <div transition:slide>
+    <div class="add-form-wrap" transition:slide>
       <Card class="add-form-card">
         <h2 class="form-heading">Create New Goal</h2>
 
@@ -264,7 +264,20 @@
       aria-modal="true"
       aria-labelledby="progress-modal-title"
     >
-      <div transition:fade class="modal-backdrop" onclick={cancelProgress}></div>
+      <div
+        class="modal-backdrop"
+        transition:fade
+        role="button"
+        tabindex="0"
+        aria-label="Close dialog"
+        onclick={cancelProgress}
+        onkeydown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            cancelProgress();
+          }
+        }}
+      ></div>
       <div class="modal-card">
         <Card elevated>
           <h2 id="progress-modal-title" class="form-heading">Add Progress</h2>
@@ -404,7 +417,9 @@
     margin: 0;
   }
 
-  .add-form-card {
+  /* Forwarded to the <Card> component root; anchor under the scoped
+     `.add-form-wrap` wrapper and use :global() so the analyzer keeps it. */
+  .add-form-wrap :global(.add-form-card) {
     margin-bottom: var(--space-6);
   }
 
@@ -414,7 +429,9 @@
     margin: 0 0 var(--space-4) 0;
   }
 
-  .form-errors p {
+  /* `.form-errors` is forwarded to the <Callout> component; its <p> children are
+     slotted content. Bridge with :global() anchored under the scoped wrapper. */
+  .add-form-wrap :global(.form-errors p) {
     margin: 0;
   }
 

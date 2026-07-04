@@ -9,9 +9,14 @@
     type TransactionInference,
   } from '../lib/transactions.js';
   import { FA_BUDGETS_COLLECTION, monthLabel, type Budget } from '../lib/budgets.js';
+  import type { DataCollection } from '@plures/pares-radix';
 
-  type PluginContext = NonNullable<ReturnType<typeof getPluginContext>>;
-  type CollectionOf<T> = ReturnType<PluginContext['data']['collection']<T>>;
+  // `DataCollection<T>` is exactly the return type of the plugin data API's
+  // `collection<T>()` method. Aliasing it directly (instead of
+  // `ReturnType<...['data']['collection']<T>>`) avoids a svelte-eslint-parser
+  // limitation that cannot parse a type argument applied to a computed-member
+  // method access.
+  type CollectionOf<T> = DataCollection<T>;
 
   interface MonthSummary {
     prefix: string;
@@ -827,7 +832,9 @@
     white-space: nowrap;
   }
 
-  .period-selector__select {
+  /* Forwarded to the <Select> component's root element; anchor under the scoped
+     `.period-selector` div and use :global() so the scoped-CSS analyzer keeps it. */
+  .period-selector :global(.period-selector__select) {
     font-size: 0.875rem;
   }
 
@@ -1084,25 +1091,29 @@
     border: 1px solid var(--color-border, #e5e7eb);
   }
 
-  .variance-table {
+  /* `.variance-table` is forwarded to the <Table> component, and its
+     thead/tr/th/td live inside that component, so scoped CSS cannot reach them.
+     Anchor under the scoped `.variance-table-wrap` div and use :global() for the
+     component-internal DOM, keeping the styling effectively local. */
+  .variance-table-wrap :global(.variance-table) {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.875rem;
   }
 
-  .variance-table thead tr {
+  .variance-table-wrap :global(.variance-table thead tr) {
     background: var(--color-surface-2, #f3f4f6);
   }
 
-  .variance-table th,
-  .variance-table td {
+  .variance-table-wrap :global(.variance-table th),
+  .variance-table-wrap :global(.variance-table td) {
     padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);
     text-align: left;
     color: var(--color-text, #111827);
     border-bottom: 1px solid var(--color-border, #e5e7eb);
   }
 
-  .variance-table th {
+  .variance-table-wrap :global(.variance-table th) {
     font-weight: 600;
     font-size: 0.75rem;
     color: var(--color-text-muted, #6b7280);
@@ -1110,11 +1121,11 @@
     letter-spacing: 0.04em;
   }
 
-  .variance-table tbody tr:last-child td {
+  .variance-table-wrap :global(.variance-table tbody tr:last-child td) {
     border-bottom: none;
   }
 
-  .variance-table tbody tr:hover {
+  .variance-table-wrap :global(.variance-table tbody tr:hover) {
     background: var(--color-surface-2, #f3f4f6);
   }
 

@@ -93,8 +93,6 @@
 
 	let fleetHealth = $state<FleetHealth>(getFleetHealth() ?? mockFleetHealth);
 	let loading = $state(false);
-	let autoRefresh = $state(false);
-	let refreshInterval = $state(30);
 
 	let summary = $derived(fleetHealth.summary);
 

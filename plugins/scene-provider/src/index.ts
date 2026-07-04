@@ -75,14 +75,14 @@ const sceneProvider: RadixPlugin = {
     // executable provider — not dead code. A host event-bus adapter routes the
     // CID request/result events to these methods (ADR-0011 mediated boundary).
     provider = createSceneProvider(ctx);
-    // eslint-disable-next-line no-console
+     
     console.log('[scene-provider] activated — scene@1.0.0 provider ready');
   },
 
   async onDeactivate() {
     // Drop the provider reference. The scene source nodes persist in ctx.data.
     provider = undefined;
-    // eslint-disable-next-line no-console
+     
     console.log('[scene-provider] deactivated');
   },
 };

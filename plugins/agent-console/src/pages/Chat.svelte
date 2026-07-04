@@ -15,14 +15,13 @@
     getConversationHistory,
     listenEvent,
     type ChatMessage,
-    type ModelChunkEvent,
   } from '$lib/platform/agent-api.js';
 
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let messages = $state<ChatMessage[]>([]);
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let inputValue = $state('');
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let isStreaming = $state(false);
 
   // Load conversation history on mount

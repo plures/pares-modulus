@@ -7,7 +7,6 @@
 
 import type {
   Device,
-  ScanState,
   FleetHealth,
   ConfigBackup,
   VaultCredential,

@@ -223,7 +223,7 @@ export function parseToml(input: string): TomlTable {
 
   for (let idx = 0; idx < rawLines.length; idx++) {
     const lineNo = idx + 1;
-    let line = stripComment(rawLines[idx]).trim();
+    const line = stripComment(rawLines[idx]).trim();
     if (line.length === 0) continue;
 
     // Array-of-tables header  [[a.b]]
@@ -244,7 +244,7 @@ export function parseToml(input: string): TomlTable {
     // key = value
     const eq = indexOfAssignment(line, lineNo);
     const rawKey = line.slice(0, eq).trim();
-    let rawVal = line.slice(eq + 1).trim();
+    const rawVal = line.slice(eq + 1).trim();
     const keyPath = splitDottedKey(rawKey, lineNo);
 
     if (rawVal.startsWith('[')) {

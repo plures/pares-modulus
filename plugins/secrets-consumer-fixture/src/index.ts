@@ -25,7 +25,7 @@ const secretsConsumerFixture: RadixPlugin = {
   async onActivate(_ctx: PluginContext) {
     // A real consumer would emit `secrets.unlock.requested` / `secrets.retrieve.requested`
     // events here and read the paired result events. The fixture stays inert.
-    // eslint-disable-next-line no-console
+     
     console.log('[secrets-consumer-fixture] activated — would use secrets@^1 via mediated events');
   },
 };

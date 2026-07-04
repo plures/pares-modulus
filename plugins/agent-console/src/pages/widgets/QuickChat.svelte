@@ -4,9 +4,9 @@
 <script lang="ts">
   import { Box, Text, Input, Button } from '@plures/design-dojo';
 
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let quickInput = $state('');
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let lastResponse = $state('');
 
   function quickAsk() {

@@ -25,15 +25,15 @@
 
   // ── State ─────────────────────────────────────────────────────────────────
   let loading = $state(true);
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let transactions = $state<Transaction[]>([]);
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let inferences = $state<TransactionInference[]>([]);
-  // eslint-disable-next-line plures/no-raw-stores
+   
   let budgets = $state<Budget[]>([]);
 
   // ── Derived: category inference lookup ───────────────────────────────────
-  // eslint-disable-next-line plures/no-raw-stores
+   
   const catMap = $derived(
     new Map<string, string>(
       inferences
@@ -52,7 +52,7 @@
 
   const currentPrefix = $derived(currentMonthPrefix());
 
-  // eslint-disable-next-line plures/no-raw-stores
+   
   const topBudgets = $derived<BudgetRow[]>(
     (() => {
       // Accumulate debit spend per category for the current calendar month.
@@ -120,186 +120,189 @@
   };
 </script>
 
-<Box class="widget" aria-label="Budget Status">
-  {#if loading}
-    <Box class="widget__skeleton" aria-busy="true" aria-label="Loading budget status" gap="var(--space-3, 0.75rem)">
-      {#each [1, 2, 3] as _}
-        <Box class="skeleton-row" />
-      {/each}
-    </Box>
+<div class="fa-scope" style="display: contents;">
+  <Box class="widget" aria-label="Budget Status">
+    {#if loading}
+      <Box class="widget__skeleton" aria-busy="true" aria-label="Loading budget status" gap="var(--space-3, 0.75rem)">
+        {#each [1, 2, 3] as _}
+          <Box class="skeleton-row" />
+        {/each}
+      </Box>
 
-  {:else if budgets.length === 0}
-    <Box class="widget__empty" role="region" aria-label="No budgets set up" align="center" gap="var(--space-2, 0.5rem)">
-      <Text class="widget__empty-icon" aria-hidden="true">📊</Text>
-      <Text as="p" class="widget__empty-text">No budgets set up yet.</Text>
-    </Box>
+    {:else if budgets.length === 0}
+      <Box class="widget__empty" role="region" aria-label="No budgets set up" align="center" gap="var(--space-2, 0.5rem)">
+        <Text class="widget__empty-icon" aria-hidden="true">📊</Text>
+        <Text as="p" class="widget__empty-text">No budgets set up yet.</Text>
+      </Box>
 
-  {:else}
-    <List class="budget-list" aria-label="Top budgets by spending">
-      {#each topBudgets as row (row.budget.id)}
-        {@const color = STATUS_COLORS[row.status]}
-        <ListItem class="budget-item">
-          <Box class="budget-item__header" direction="row" justify="space-between" align="baseline">
-            <Text class="budget-item__category">{row.budget.category}</Text>
-            <Text
-              class="budget-item__pct"
-              style:color={color}
-              aria-label={`${Math.round(row.pct)}% spent`}
-            >
-              {Math.round(row.pct)}%
-            </Text>
-          </Box>
-          <!-- Mini progress bar -->
-          <Box
-            class="progress-track"
-            role="progressbar"
-            aria-valuenow={row.pct}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`${row.budget.category}: ${Math.round(row.pct)}% of budget used`}
-          >
+    {:else}
+      <List class="budget-list" aria-label="Top budgets by spending">
+        {#each topBudgets as row (row.budget.id)}
+          {@const color = STATUS_COLORS[row.status]}
+          <ListItem class="budget-item">
+            <Box class="budget-item__header" direction="row" justify="space-between" align="baseline">
+              <Text class="budget-item__category">{row.budget.category}</Text>
+              <Text
+                class="budget-item__pct"
+                style={`color: ${color};`}
+                aria-label={`${Math.round(row.pct)}% spent`}
+              >
+                {Math.round(row.pct)}%
+              </Text>
+            </Box>
+            <!-- Mini progress bar -->
             <Box
-              class="progress-fill"
-              style:width={`${row.pct}%`}
-              style:background={color}
-            />
-          </Box>
-          <Box class="budget-item__sub" direction="row" justify="space-between" align="center">
-            <Text class="budget-item__amounts">
-              {fmt(row.actual)} / {fmt(row.budget.monthlyLimit)}
-            </Text>
-            <Text
-              class="budget-item__status"
-              style:color={color}
+              class="progress-track"
+              role="progressbar"
+              aria-valuenow={row.pct}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`${row.budget.category}: ${Math.round(row.pct)}% of budget used`}
             >
-              {STATUS_LABELS[row.status]}
-            </Text>
-          </Box>
-        </ListItem>
-      {/each}
-    </List>
-  {/if}
-</Box>
+              <Box
+                class="progress-fill"
+                style={`width: ${row.pct}%; background: ${color};`}
+              />
+            </Box>
+            <Box class="budget-item__sub" direction="row" justify="space-between" align="center">
+              <Text class="budget-item__amounts">
+                {fmt(row.actual)} / {fmt(row.budget.monthlyLimit)}
+              </Text>
+              <Text
+                class="budget-item__status"
+                style={`color: ${color};`}
+              >
+                {STATUS_LABELS[row.status]}
+              </Text>
+            </Box>
+          </ListItem>
+        {/each}
+      </List>
+    {/if}
+  </Box>
+</div>
 
 <style>
-  /* ── Widget shell ──────────────────────────────────────────────────────── */
-  .widget {
-    padding: var(--space-4, 1rem);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
+  .fa-scope :global {
+    /* ── Widget shell ──────────────────────────────────────────────────────── */
+    .widget {
+      padding: var(--space-4, 1rem);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
 
-  /* ── Loading skeleton ──────────────────────────────────────────────────── */
-  .widget__skeleton {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3, 0.75rem);
-  }
+    /* ── Loading skeleton ──────────────────────────────────────────────────── */
+    .widget__skeleton {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3, 0.75rem);
+    }
 
-  .skeleton-row {
-    height: 3.5rem;
-    border-radius: var(--radius-md, 0.5rem);
-    background: var(--color-surface-2, #f3f4f6);
-    animation: pulse 1.4s ease-in-out infinite;
-  }
+    .skeleton-row {
+      height: 3.5rem;
+      border-radius: var(--radius-md, 0.5rem);
+      background: var(--color-surface-2, #f3f4f6);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.5; }
-  }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.5; }
+    }
 
-  /* ── Empty state ───────────────────────────────────────────────────────── */
-  .widget__empty {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2, 0.5rem);
-    text-align: center;
-    padding: var(--space-4, 1rem);
-  }
+    /* ── Empty state ───────────────────────────────────────────────────────── */
+    .widget__empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2, 0.5rem);
+      text-align: center;
+      padding: var(--space-4, 1rem);
+    }
 
-  .widget__empty-icon {
-    font-size: 2rem;
-  }
+    .widget__empty-icon {
+      font-size: 2rem;
+    }
 
-  .widget__empty-text {
-    font-size: 0.875rem;
-    color: var(--color-text-muted, #6b7280);
-    margin: 0;
-  }
+    .widget__empty-text {
+      font-size: 0.875rem;
+      color: var(--color-text-muted, #6b7280);
+      margin: 0;
+    }
 
-  /* ── Budget list ───────────────────────────────────────────────────────── */
-  .budget-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4, 1rem);
-  }
+    /* ── Budget list ───────────────────────────────────────────────────────── */
+    .budget-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4, 1rem);
+    }
 
-  /* ── Budget item ───────────────────────────────────────────────────────── */
-  .budget-item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1, 0.25rem);
-  }
+    /* ── Budget item ───────────────────────────────────────────────────────── */
+    .budget-item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1, 0.25rem);
+    }
 
-  .budget-item__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-  }
+    .budget-item__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
 
-  .budget-item__category {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--color-text, #111827);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 70%;
-  }
+    .budget-item__category {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-text, #111827);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70%;
+    }
 
-  .budget-item__pct {
-    font-size: 0.875rem;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
+    .budget-item__pct {
+      font-size: 0.875rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
 
-  /* ── Progress bar ──────────────────────────────────────────────────────── */
-  .progress-track {
-    width: 100%;
-    height: 6px;
-    background: var(--color-surface-2, #f3f4f6);
-    border-radius: var(--radius-full, 9999px);
-    overflow: hidden;
-  }
+    /* ── Progress bar ──────────────────────────────────────────────────────── */
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: var(--color-surface-2, #f3f4f6);
+      border-radius: var(--radius-full, 9999px);
+      overflow: hidden;
+    }
 
-  .progress-fill {
-    height: 100%;
-    border-radius: var(--radius-full, 9999px);
-    transition: width 0.3s ease;
-    min-width: 2px;
-  }
+    .progress-fill {
+      height: 100%;
+      border-radius: var(--radius-full, 9999px);
+      transition: width 0.3s ease;
+      min-width: 2px;
+    }
 
-  /* ── Sub-row: amounts + status label ───────────────────────────────────── */
-  .budget-item__sub {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+    /* ── Sub-row: amounts + status label ───────────────────────────────────── */
+    .budget-item__sub {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-  .budget-item__amounts {
-    font-size: 0.75rem;
-    color: var(--color-text-muted, #6b7280);
-  }
+    .budget-item__amounts {
+      font-size: 0.75rem;
+      color: var(--color-text-muted, #6b7280);
+    }
 
-  .budget-item__status {
-    font-size: 0.75rem;
-    font-weight: 500;
+    .budget-item__status {
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
   }
 </style>

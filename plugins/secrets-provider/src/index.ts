@@ -50,14 +50,14 @@ const secretsProvider: RadixPlugin = {
     // executable provider — not dead code. A host event-bus adapter routes the
     // CID request/result events to these methods (ADR-0011 mediated boundary).
     provider = createSecretsProvider(ctx);
-    // eslint-disable-next-line no-console
+     
     console.log('[secrets-provider] activated — secrets@1.0.0 provider ready (locked)');
   },
 
   async onDeactivate() {
     // Drop the provider reference; in-memory unlock state goes with it.
     provider = undefined;
-    // eslint-disable-next-line no-console
+     
     console.log('[secrets-provider] deactivated');
   },
 };

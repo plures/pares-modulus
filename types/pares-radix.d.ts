@@ -43,11 +43,34 @@ export interface SettingConfig {
   group?: string;
 }
 
+/**
+ * A single entry in the schema-map settings form (used by plugins that declare
+ * `settings: { schema: { <key>: SettingSchemaEntry } }` rather than the flat
+ * `SettingConfig[]` array).
+ */
+export interface SettingSchemaEntry {
+  type: 'string' | 'number' | 'boolean' | 'select' | string;
+  title: string;
+  description?: string;
+  default?: unknown;
+  minimum?: number;
+  maximum?: number;
+  options?: SettingOption[];
+}
+
+export interface SettingsSchema {
+  schema: Record<string, SettingSchemaEntry>;
+}
+
 export interface DashboardWidget {
   id: string;
   title: string;
   component: () => Promise<unknown>;
   priority?: number;
+  /** Number of dashboard grid columns this widget spans. */
+  colspan?: number;
+  /** Default grid footprint (columns x rows) for this widget. */
+  defaultSize?: { width: number; height: number };
 }
 
 export interface HelpSection {
@@ -161,8 +184,12 @@ export interface RadixPlugin {
   description: string;
   routes?: RouteConfig[];
   navItems?: NavItem[];
-  settings?: SettingConfig[];
+  /** IDs of other plugins this plugin depends on. */
+  dependencies?: string[];
+  settings?: SettingConfig[] | SettingsSchema;
   dashboardWidgets?: DashboardWidget[];
+  /** Alternate dashboard-widget registration list (uses `defaultSize`). */
+  widgets?: DashboardWidget[];
   helpSections?: HelpSection[];
   onboardingSteps?: OnboardingStep[];
   rules?: InferenceRule[];

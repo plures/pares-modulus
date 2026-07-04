@@ -812,14 +812,6 @@
     text-overflow: ellipsis;
   }
 
-  button.tx-table__th {
-    cursor: pointer;
-  }
-
-  button.tx-table__th:hover {
-    color: var(--color-text, #111827);
-  }
-
   .sort-icon {
     opacity: 0.6;
   }

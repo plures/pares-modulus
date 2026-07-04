@@ -327,7 +327,11 @@
     margin-top: var(--space-8, 32px);
   }
 
-  .help-toggle {
+  /* `.help-toggle` is forwarded to the <Button> component's root element, so the
+     scoped-CSS analyzer cannot associate it with this component. Anchor it under
+     the scoped `.help-section` and use :global() to reach the child element while
+     keeping the styling effectively local to this component's subtree. */
+  .help-section :global(.help-toggle) {
     background: none;
     border: none;
     color: var(--color-text-secondary, #888);
@@ -337,7 +341,7 @@
     margin-bottom: var(--space-2, 8px);
   }
 
-  .help-toggle:hover {
+  .help-section :global(.help-toggle:hover) {
     color: var(--color-text-primary, #fff);
   }
 
