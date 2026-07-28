@@ -1,6 +1,7 @@
 name: Release
 on:
   push:
+    branches: [main]
     tags: ['v*']
   workflow_dispatch:
     inputs:
@@ -12,6 +13,10 @@ on:
         description: 'Exact version to release (e.g. 1.0.0). Overrides bump logic.'
         type: string
         required: false
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
   packages: write
@@ -21,6 +26,6 @@ jobs:
   release:
     uses: plures/.github/.github/workflows/release-reusable.yml@main
     with:
-      bump: ${{ inputs.bump || '' }}
-      target_version: ${{ inputs.target_version || '' }}
+      bump: ${{ github.event.inputs.bump || '' }}
+      target_version: ${{ github.event.inputs.target_version || '' }}
     secrets: inherit
