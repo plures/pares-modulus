@@ -1,6 +1,6 @@
 {
   "name": "@plures/secrets-provider",
-  "version": "1.0.0",
+  "version": "0.8.0",
   "private": true,
   "type": "module",
   "description": "Secrets Provider plugin for pares-radix — secrets@1.x conformance provider (channel-independent C-TEST-002 harness)",

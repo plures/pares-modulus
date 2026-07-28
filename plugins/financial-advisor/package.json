@@ -1,6 +1,6 @@
 {
   "name": "@plures/financial-advisor",
-  "version": "0.1.0",
+  "version": "0.8.0",
   "private": true,
   "type": "module",
   "description": "Financial Advisor plugin for pares-radix — local test harness (channel-independent C-TEST-002)",
