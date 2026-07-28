@@ -1,3 +1,29 @@
+## [0.9.0] — 2026-07-28
+
+- Merge pull request #36 from plures/chore/dependabot-auto-merge-workflow-call (295d6ac)
+- Potential fix for pull request finding (8da614e)
+- Merge pull request #35 from plures/release-trigger-autobump (98c2537)
+- fix(ci): use github.event.inputs in release workflow (a12d115)
+- Potential fix for pull request finding (8de3909)
+- chore: delegate dependabot-auto-merge.yml to plures/.github reusable template (fbbfce1)
+- ci(release): trigger release pipeline on merge to main (7a290d3)
+- ci: migrate Tech Doc Writer to shared reusable (50eb89a)
+- fix(ci): repair tech-doc-writer YAML + remove empty auto-approve workflow (62da684)
+- fix(ci): exclude test files + nested node_modules from type-check (4e6ede0)
+- chore: remove task-definition working artifact (bed6ce8)
+- fix(ci): clear lint debt in pares-modulus plugins (green main) (68dd80c)
+- fix(ci): commit pnpm-lock.yaml + scope plures eslint plugin (unblock install) (f2c574e)
+- fix(ci): add pnpm-workspace.yaml so workspace:* dep resolves + allow esbuild build (5bbe797)
+- ci: add security-aware Dependabot auto-merge workflow (org backfill) (752db5f)
+- feat(plugins): scene@1.x conformance provider + consumer fixture (verify-on-target green) (3d9bf25)
+- feat(secrets-provider): real secrets@1.x conformance provider + verify-on-target closure (56ab867)
+- chore(registry): financial-advisor tested=true after T1 test suite landed (529b28e)
+- feat(financial-advisor): complete localStorage->PluresDB migration (T1) (557171f)
+- feat(registry): capability-aware plugin dependencies + validate-dependencies gate (f278dde)
+- ci(gates): CID-surface validation gate for capability providers (pares-radix ADR-0022 step 6) (fae3f8f)
+- ci: change release trigger from push-to-main to tag-only (d4867d1)
+- registry: add pedantic plugin entry (ad3abac)
+
 ## [0.7.1] — 2026-05-11
 
 - refactor: replace inline lifecycle with reusable workflow call (608cc71)
