@@ -13,6 +13,7 @@
     "gate:dependencies": "tsx gates/validate-dependencies.ts",
     "gate:security": "tsx gates/security-scan.ts",
     "gate:size": "tsx gates/size-audit.ts",
+    "gate:host-effects": "tsx gates/validate-host-effects-contract.ts",
     "gate:all": "npm run gate:manifest -- plugins/$PLUGIN && npm run gate:dependencies -- plugins/$PLUGIN && npm run gate:security -- plugins/$PLUGIN && npm run gate:size -- plugins/$PLUGIN"
   },
   "keywords": [

@@ -1,0 +1,22 @@
+name: Host Effects Contract Gate
+
+on:
+  pull_request:
+    paths:
+      - 'registry/contracts/**'
+      - 'gates/validate-host-effects-contract.ts'
+      - 'package.json'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - run: npm ci || npm install --no-save
+      - run: npm run gate:host-effects
