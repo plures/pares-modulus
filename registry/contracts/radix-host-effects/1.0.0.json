@@ -1,0 +1,41 @@
+{
+  "contract_id": "radix-host-effects",
+  "version": "1.0.0",
+  "processes": [
+    {
+      "process_id": "task_dispatch",
+      "orchestrator_id": "px-task-dispatch",
+      "adjacency_queue_capacity": 256,
+      "restart_policy": "on_failure",
+      "latency_class": "interactive"
+    },
+    {
+      "process_id": "tool_executor",
+      "orchestrator_id": "px-tool-recovery",
+      "adjacency_queue_capacity": 256,
+      "restart_policy": "on_failure",
+      "latency_class": "interactive"
+    },
+    {
+      "process_id": "model_invoker",
+      "orchestrator_id": "px-model-recovery",
+      "adjacency_queue_capacity": 64,
+      "restart_policy": "on_failure",
+      "latency_class": "interactive"
+    },
+    {
+      "process_id": "system_clock",
+      "orchestrator_id": "px-clock-admission",
+      "adjacency_queue_capacity": 64,
+      "restart_policy": "always",
+      "latency_class": "background"
+    },
+    {
+      "process_id": "process_supervisor",
+      "orchestrator_id": "px-process-recovery",
+      "adjacency_queue_capacity": 64,
+      "restart_policy": "always",
+      "latency_class": "background"
+    }
+  ]
+}

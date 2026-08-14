@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "contracts": [
+    {
+      "id": "radix-host-effects",
+      "version": "1.0.0",
+      "radix": ">=1.55.60",
+      "path": "registry/contracts/radix-host-effects/1.0.0.json",
+      "sha256": "995f082b72af46870a977e4474ccc43555c8c55c468415a6150c3db13f59c8b9"
+    }
+  ]
+}

@@ -43,7 +43,8 @@ mkdir plugins/my-plugin
 pares-modulus/
 ├── registry/
 │   ├── index.json              # Machine-readable plugin catalog
-│   └── schema.json             # Plugin manifest validation schema
+│   ├── schema.json             # Plugin manifest validation schema
+│   └── contracts/              # Versioned host-effect contracts consumed by Radix/extensions
 ├── plugins/
 │   ├── financial-advisor/
 │   │   ├── manifest.json       # Plugin metadata (name, version, deps, etc.)
