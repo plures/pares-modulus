@@ -1,0 +1,173 @@
+name: Native Extension Catalog
+
+on:
+  pull_request:
+    paths:
+      - 'registry/native-extensions/**'
+      - 'registry/contracts/**'
+      - 'gates/validate-native-extension-catalog.ts'
+      - 'gates/test-native-extension-catalog.ts'
+      - 'scripts/package-native-extension.sh'
+      - 'scripts/publish-native-extension-catalog.ts'
+      - '.github/workflows/native-extension-catalog.yml'
+      - 'package.json'
+  workflow_dispatch:
+    inputs:
+      extension_id:
+        description: 'Kebab-case native extension id to promote from praxis-platform.'
+        required: true
+        type: string
+      extension_version:
+        description: 'Immutable extension semantic version, matching radix-extension.json.'
+        required: true
+        type: string
+      host_effects_cid:
+        description: 'Published Modulus host-effects CID, for example radix-host-effects@1.0.0.'
+        required: true
+        type: string
+      source_revision:
+        description: 'Full immutable 40-character praxis-platform commit SHA.'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate:
+    name: Validate catalog contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - run: npm ci || npm install --no-save
+      - run: npm run gate:native-extension-catalog
+      - run: npm run test:native-extension-catalog
+
+  promote:
+    if: github.event_name == 'workflow_dispatch'
+    name: Package immutable release and open catalog PR
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require promotion from the protected catalog branch
+        shell: bash
+        run: |
+          [[ "$GITHUB_REF" == "refs/heads/main" ]]
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - run: npm ci || npm install --no-save
+
+      - name: Mint a GitHub App installation token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.PLURES_RELEASE_APP_ID }}
+          private-key: ${{ secrets.PLURES_RELEASE_APP_PRIVATE_KEY }}
+          owner: plures
+
+      - uses: actions/checkout@v4
+        with:
+          repository: plures/praxis-platform
+          ref: ${{ inputs.source_revision }}
+          path: praxis-platform
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 1
+
+      - name: Verify immutable source revision
+        shell: bash
+        env:
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+        run: |
+          [[ "$SOURCE_REVISION" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$(git -C praxis-platform rev-parse HEAD)" == "$SOURCE_REVISION" ]]
+
+      - name: Package deterministic native extension archive
+        id: package
+        shell: bash
+        env:
+          EXTENSION_ID: ${{ inputs.extension_id }}
+          EXTENSION_VERSION: ${{ inputs.extension_version }}
+          HOST_EFFECTS_CID: ${{ inputs.host_effects_cid }}
+        run: |
+          output="${RUNNER_TEMP}/${EXTENSION_ID}-${EXTENSION_VERSION}.tar.gz"
+          scripts/package-native-extension.sh \
+            "praxis-platform/crates/pares-radix/extensions/${EXTENSION_ID}" \
+            "$EXTENSION_ID" \
+            "$EXTENSION_VERSION" \
+            "$HOST_EFFECTS_CID" \
+            "$output" | tee "$RUNNER_TEMP/package-output.txt"
+          echo "artifact_path=$output" >> "$GITHUB_OUTPUT"
+          grep '^artifact_sha256=' "$RUNNER_TEMP/package-output.txt" >> "$GITHUB_OUTPUT"
+
+      - name: Publish immutable GitHub Release asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXTENSION_ID: ${{ inputs.extension_id }}
+          EXTENSION_VERSION: ${{ inputs.extension_version }}
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+          ARTIFACT_PATH: ${{ steps.package.outputs.artifact_path }}
+        run: |
+          tag="native-${EXTENSION_ID}-v${EXTENSION_VERSION}"
+          gh release view "$tag" >/dev/null 2>&1 && { echo "release already exists: $tag" >&2; exit 1; }
+          gh release create "$tag" "$ARTIFACT_PATH#${EXTENSION_ID}-${EXTENSION_VERSION}.tar.gz" \
+            --target "$GITHUB_SHA" \
+            --title "Native extension ${EXTENSION_ID} ${EXTENSION_VERSION}" \
+            --notes "Immutable archive promoted from plures/praxis-platform@${SOURCE_REVISION}."
+
+      - name: Prepare catalog release record
+        shell: bash
+        env:
+          EXTENSION_ID: ${{ inputs.extension_id }}
+          EXTENSION_VERSION: ${{ inputs.extension_version }}
+          HOST_EFFECTS_CID: ${{ inputs.host_effects_cid }}
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+          ARTIFACT_SHA256: ${{ steps.package.outputs.artifact_sha256 }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          tag="native-${EXTENSION_ID}-v${EXTENSION_VERSION}"
+          cat > "$RUNNER_TEMP/native-release.json" <<EOF
+          {
+            "extension_id": "${EXTENSION_ID}",
+            "version": "${EXTENSION_VERSION}",
+            "host_effects_cid": "${HOST_EFFECTS_CID}",
+            "artifact_sha256": "${ARTIFACT_SHA256}",
+            "artifact_url": "https://github.com/${REPOSITORY}/releases/download/${tag}/${EXTENSION_ID}-${EXTENSION_VERSION}.tar.gz",
+            "source_repository": "plures/praxis-platform",
+            "source_revision": "${SOURCE_REVISION}"
+          }
+          EOF
+          npx tsx scripts/publish-native-extension-catalog.ts \
+            registry/native-extensions/v1/index.json "$RUNNER_TEMP/native-release.json"
+          npm run gate:native-extension-catalog
+
+      - name: Open reviewed catalog promotion PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXTENSION_ID: ${{ inputs.extension_id }}
+          EXTENSION_VERSION: ${{ inputs.extension_version }}
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+        run: |
+          branch="automation/native-${EXTENSION_ID}-v${EXTENSION_VERSION}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add registry/native-extensions/v1/index.json
+          git commit -m "feat(modulus): publish ${EXTENSION_ID} ${EXTENSION_VERSION}"
+          git push --set-upstream origin "$branch"
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "feat(modulus): publish ${EXTENSION_ID} ${EXTENSION_VERSION}" \
+            --body "Promotes immutable archive from plures/praxis-platform@${SOURCE_REVISION}. The native catalog gate verifies the pinned host-effects CID, archive digest, HTTPS artifact URL, and source revision."

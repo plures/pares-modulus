@@ -14,6 +14,8 @@
     "gate:security": "tsx gates/security-scan.ts",
     "gate:size": "tsx gates/size-audit.ts",
     "gate:host-effects": "tsx gates/validate-host-effects-contract.ts",
+    "gate:native-extension-catalog": "tsx gates/validate-native-extension-catalog.ts",
+    "test:native-extension-catalog": "tsx gates/test-native-extension-catalog.ts",
     "gate:all": "npm run gate:manifest -- plugins/$PLUGIN && npm run gate:dependencies -- plugins/$PLUGIN && npm run gate:security -- plugins/$PLUGIN && npm run gate:size -- plugins/$PLUGIN"
   },
   "keywords": [

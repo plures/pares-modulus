@@ -3,5 +3,6 @@ dist/
 build/
 .svelte-kit/
 target/
+dist/native-extensions/
 *.log
 .DS_Store
