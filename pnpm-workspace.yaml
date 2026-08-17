@@ -1,8 +1,11 @@
 packages:
   - "packages/*"
 
-# esbuild ships a native binary via a postinstall build script. pnpm >=10
-# blocks unlisted build scripts by default and exits non-zero
-# (ERR_PNPM_IGNORED_BUILDS), which fails CI. Explicitly allow it.
+# esbuild ships the native binary used by tsx. pnpm 11 blocks unlisted build
+# scripts; without this explicit allow-list it cannot execute registry gates.
+allowBuilds:
+  esbuild: true
+
+# Preserve compatibility with the pnpm 10 config used by existing runners.
 onlyBuiltDependencies:
   - esbuild

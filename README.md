@@ -45,6 +45,7 @@ pares-modulus/
 │   ├── index.json              # Machine-readable plugin catalog
 │   ├── schema.json             # Plugin manifest validation schema
 │   └── contracts/              # Versioned host-effect contracts consumed by Radix/extensions
+│   └── native-extensions/v1/   # Immutable archive catalog consumed by the native host
 ├── plugins/
 │   ├── financial-advisor/
 │   │   ├── manifest.json       # Plugin metadata (name, version, deps, etc.)
@@ -141,6 +142,42 @@ All PRs that touch `plugins/` must pass:
   ]
 }
 ```
+
+## Native extension releases
+
+Native Modulus extensions are not installed from a source folder. Radix resolves
+one immutable record from `registry/native-extensions/v1/index.json`, verifies
+its SHA-256 archive digest, stages it below the host-owned extension root, and
+then asks the PX activation procedure to admit the transition. A catalog record
+contains the exact extension version, its published `radix-host-effects` CID,
+an HTTPS `tar.gz` asset, and the immutable `plures/praxis-platform` source
+revision that produced it.
+
+The catalog starts empty deliberately: a record is added only after the source
+extension has merged and the promotion workflow packages the exact commit.
+This avoids publishing a link that the desktop host can discover but cannot
+securely acquire.
+
+### Promoting a native release
+
+Use **Actions → Native Extension Catalog → Run workflow** after the extension
+source is merged. Supply its kebab-case id, version, exact 40-character
+`praxis-platform` commit SHA, and a CID already published under
+`registry/contracts/`. The workflow:
+
+1. uses the organization GitHub App installation token to read the private
+   platform source — no personal access token is maintained;
+2. creates a deterministic root-level `tar.gz` containing the manifest,
+   compiled bundle, and procedures;
+3. publishes that exact archive as a one-time GitHub Release asset;
+4. opens a normal reviewed PR adding the SHA-256-pinned release record.
+
+The workflow fails closed if the source SHA is not immutable, the manifest does
+not exactly match the requested release, the CID is not in the published host
+effects index, or a release version already exists. Configure the organization
+GitHub App once with read access to `plures/praxis-platform` and write access
+to `plures/pares-modulus`, then expose its id as `PLURES_RELEASE_APP_ID` and
+private key as `PLURES_RELEASE_APP_PRIVATE_KEY` to this repository.
 
 ## Community Guidelines
 
