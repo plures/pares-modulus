@@ -63,6 +63,9 @@ function assertExactKeys(value: Record<string, unknown>, expected: readonly stri
 }
 
 function validatePublishedContract(contract: PublishedContract, contractsIndexDirectory: string): void {
+  if (!contract.path.startsWith('registry/contracts/') || contract.path.includes('..') || contract.path.includes('\\') || !contract.path.endsWith('.json')) {
+    throw new Error(`host-effects contract path must stay within registry/contracts: ${contract.path}`);
+  }
   const contractPath = resolve(contractsIndexDirectory, '..', '..', contract.path);
   const source = readFileSync(contractPath);
   const digest = createHash('sha256').update(source).digest('hex');
