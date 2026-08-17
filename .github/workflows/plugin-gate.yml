@@ -80,7 +80,7 @@ jobs:
         run: |
           if [ -d plugins/${{ matrix.plugin }}/tests ]; then
             echo "Running plugin tests..."
-            pnpm exec vitest run plugins/${{ matrix.plugin }}/tests/ --passWithNoTests || echo "⚠️ Tests failed (non-blocking)"
+            pnpm dlx vitest run plugins/${{ matrix.plugin }}/tests/ --passWithNoTests || echo "⚠️ Tests failed (non-blocking)"
           else
             echo "No tests directory — skipping (non-blocking)"
           fi
