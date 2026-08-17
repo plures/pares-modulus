@@ -45,27 +45,31 @@ jobs:
         with:
           node-version: 'lts/*'
 
-      - run: npm ci || npm install --no-save
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.1
+
+      - run: pnpm install --frozen-lockfile
 
       - name: "Gate: Manifest Validation"
-        run: npx tsx gates/validate-manifest.ts plugins/${{ matrix.plugin }}
+        run: pnpm exec tsx gates/validate-manifest.ts plugins/${{ matrix.plugin }}
 
       - name: "Gate: CID Surface"
-        run: npx tsx gates/validate-cid-surface.ts plugins/${{ matrix.plugin }}
+        run: pnpm exec tsx gates/validate-cid-surface.ts plugins/${{ matrix.plugin }}
 
       - name: "Gate: Dependencies"
-        run: npx tsx gates/validate-dependencies.ts plugins/${{ matrix.plugin }}
+        run: pnpm exec tsx gates/validate-dependencies.ts plugins/${{ matrix.plugin }}
 
       - name: "Gate: Security Scan"
-        run: npx tsx gates/security-scan.ts plugins/${{ matrix.plugin }}
+        run: pnpm exec tsx gates/security-scan.ts plugins/${{ matrix.plugin }}
 
       - name: "Gate: Size Audit"
-        run: npx tsx gates/size-audit.ts plugins/${{ matrix.plugin }}
+        run: pnpm exec tsx gates/size-audit.ts plugins/${{ matrix.plugin }}
 
       - name: "Gate: Type Check"
         run: |
           if [ -f plugins/${{ matrix.plugin }}/src/index.ts ]; then
-            npx tsc --noEmit --strict --skipLibCheck \
+            pnpm exec tsc --noEmit --strict --skipLibCheck \
               --moduleResolution bundler --module ES2022 --target ES2022 \
               plugins/${{ matrix.plugin }}/src/**/*.ts || true
           else
@@ -76,7 +80,7 @@ jobs:
         run: |
           if [ -d plugins/${{ matrix.plugin }}/tests ]; then
             echo "Running plugin tests..."
-            npx vitest run plugins/${{ matrix.plugin }}/tests/ --passWithNoTests || echo "⚠️ Tests failed (non-blocking)"
+            pnpm exec vitest run plugins/${{ matrix.plugin }}/tests/ --passWithNoTests || echo "⚠️ Tests failed (non-blocking)"
           else
             echo "No tests directory — skipping (non-blocking)"
           fi
@@ -103,6 +107,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
-      - run: npm ci || npm install --no-save
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.1
+      - run: pnpm install --frozen-lockfile
       - name: Verify registry builds cleanly
-        run: npx tsx scripts/build-registry.ts
+        run: pnpm exec tsx scripts/build-registry.ts
