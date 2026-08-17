@@ -17,21 +17,24 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
-      - run: npm ci || npm install
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.1
+      - run: pnpm install --frozen-lockfile
         continue-on-error: true
 
       - name: Lint
-        run: npm run lint --if-present 2>&1
+        run: pnpm run lint 2>&1
         continue-on-error: true
         id: lint
 
       - name: Type check
-        run: npx tsc --noEmit --skipLibCheck 2>&1
+        run: pnpm exec tsc --noEmit --skipLibCheck 2>&1
         continue-on-error: true
         id: typecheck
 
       - name: Test
-        run: npm test --if-present 2>&1
+        run: pnpm test 2>&1
         continue-on-error: true
         id: test
 

@@ -18,5 +18,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
-      - run: npm ci || npm install --no-save
-      - run: npm run gate:host-effects
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run gate:host-effects

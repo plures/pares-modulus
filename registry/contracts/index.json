@@ -6,7 +6,7 @@
       "version": "1.0.0",
       "radix": ">=1.55.60",
       "path": "registry/contracts/radix-host-effects/1.0.0.json",
-      "sha256": "25888940c94374a38bc9035cafe94ee0c58ef000c9b843121576d4bd1ba02b26"
+      "sha256": "995f082b72af46870a977e4474ccc43555c8c55c468415a6150c3db13f59c8b9"
     }
   ]
 }

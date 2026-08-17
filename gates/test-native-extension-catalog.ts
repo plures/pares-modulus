@@ -12,9 +12,11 @@ try {
   const contractsDirectory = join(fixtureDirectory, 'registry', 'contracts');
   mkdirSync(contractsDirectory, { recursive: true });
   const contractPath = join(contractsDirectory, 'radix-host-effects-1.0.0.json');
-  const contractSource = '{"contract_id":"radix-host-effects","version":"1.0.0","processes":[]}\n';
+  const contractSource = '{"contract_id":"radix-host-effects","version":"1.0.0","processes":[]}\r\n';
   writeFileSync(contractPath, contractSource);
-  const contractDigest = createHash('sha256').update(contractSource).digest('hex');
+  const contractDigest = createHash('sha256')
+    .update(contractSource.replace(/\r\n/g, '\n'))
+    .digest('hex');
   const contractsIndexPath = join(contractsDirectory, 'index.json');
   writeFileSync(contractsIndexPath, JSON.stringify({
     version: 1,
