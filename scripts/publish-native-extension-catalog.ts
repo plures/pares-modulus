@@ -34,7 +34,7 @@ catalog.releases.push(release);
 catalog.releases.sort((left, right) => {
   const leftKey = `${left.extension_id}@${left.version}`;
   const rightKey = `${right.extension_id}@${right.version}`;
-  return leftKey.localeCompare(rightKey);
+  return leftKey < rightKey ? -1 : leftKey > rightKey ? 1 : 0;
 });
 writeFileSync(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
 console.log(`added ${releaseKey} to ${catalogPath}`);
