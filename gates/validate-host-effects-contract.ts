@@ -40,12 +40,16 @@ if (index.version !== 1 || !Array.isArray(index.contracts)) {
   throw new Error(`${indexPath} must declare version 1 and a contracts array`);
 }
 
+function canonicalContractBytes(source: Buffer): Buffer {
+  return Buffer.from(source.toString('utf8').replace(/\r\n/g, '\n'), 'utf8');
+}
+
 for (const published of index.contracts) {
   if (!existsSync(published.path)) {
     throw new Error(`published contract missing: ${published.path}`);
   }
   const source = readFileSync(published.path);
-  const digest = createHash('sha256').update(source).digest('hex');
+  const digest = createHash('sha256').update(canonicalContractBytes(source)).digest('hex');
   if (digest !== published.sha256) {
     throw new Error(`${published.id}@${published.version} digest does not match index`);
   }

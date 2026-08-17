@@ -62,13 +62,17 @@ function assertExactKeys(value: Record<string, unknown>, expected: readonly stri
   }
 }
 
+function canonicalContractBytes(source: Buffer): Buffer {
+  return Buffer.from(source.toString('utf8').replace(/\r\n/g, '\n'), 'utf8');
+}
+
 function validatePublishedContract(contract: PublishedContract, contractsIndexDirectory: string): void {
   if (!contract.path.startsWith('registry/contracts/') || contract.path.includes('..') || contract.path.includes('\\') || !contract.path.endsWith('.json')) {
     throw new Error(`host-effects contract path must stay within registry/contracts: ${contract.path}`);
   }
   const contractPath = resolve(contractsIndexDirectory, '..', '..', contract.path);
   const source = readFileSync(contractPath);
-  const digest = createHash('sha256').update(source).digest('hex');
+  const digest = createHash('sha256').update(canonicalContractBytes(source)).digest('hex');
   if (digest !== contract.sha256) {
     throw new Error(`host-effects contract digest does not match its publication index: ${contract.id}@${contract.version}`);
   }
