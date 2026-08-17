@@ -121,7 +121,12 @@ export function validateNativeExtensionCatalog(
     if (!digestPattern.test(release.artifact_sha256)) {
       throw new Error(`native release digest must be lowercase SHA-256: ${release.extension_id}@${release.version}`);
     }
-    const artifactUrl = new URL(release.artifact_url);
+    let artifactUrl: URL;
+    try {
+      artifactUrl = new URL(release.artifact_url);
+    } catch {
+      throw new Error(`native release artifact_url must be a valid HTTPS URL: ${release.extension_id}@${release.version}`);
+    }
     if (artifactUrl.protocol !== 'https:' || !artifactUrl.pathname.endsWith('.tar.gz')) {
       throw new Error(`native release artifact must be an HTTPS tar.gz URL: ${release.extension_id}@${release.version}`);
     }
